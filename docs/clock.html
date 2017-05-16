@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<style>
+			body {
+				margin: 10px;
+				background-color:  rgba(0, 255, 0, 0);
+				overflow: hidden;
+			}
+		</style>
+<script>
+function startTime() {
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('txt').innerHTML =
+    h + ":" + m + ":" + s;
+    var t = setTimeout(startTime, 500);
+}
+function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+</script>
+</head>
+
+<body onload="startTime()">
+
+<div style="font-weight:bold;font-family:sans-serif;font-size:20px;text-shadow: 3px 3px #FFFFFF;opacity:0.85">
+
+<span style="color:green">Seb Green TV</span> <span id="txt"></span>&nbsp;<span style="color:red">LIVE</span>
+
+</div>
+
+</body>
+</html>
+
