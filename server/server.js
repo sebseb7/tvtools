@@ -10,7 +10,7 @@ var server = http.createServer(function(req, res) {
 var io = require('socket.io').listen(server);
 var obs = new OBSWebSocket();
 var activeSlot = 1;
-var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,-90]];
+var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0]];
 var obs_config = {
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
 					'ticker2text':'<img align="top" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" height="25"/> seb.greenbus',
@@ -25,28 +25,28 @@ var obs_config = {
 					'cube1':'in',
 					'ticker1':'out',
 					'stream1_url':'hlsvariant://http://infowarslive-lh.akamaihd.net/i/infowarslivestream_1@353459/master.m3u8',
-					'stream1_param':'',
+					'stream1_desc':'IW',
 					'stream1_state':'',
-					'stream2_url':'hls://https://hls-ord-2a.vaughnsoft.net:1443/nyc/live/live_newzviewz/chunklist.m3u8',
-					'stream2_param':'',
+					'stream2_url':'https://www.youtube.com/watch?v=dJep21Gdpys',
+					'stream2_desc':'OAN',
 					'stream2_state':'',
-					'stream3_url':'',
-					'stream3_param':'',
+					'stream3_url':'https://www.youtube.com/watch?v=RiiSF2DxxTE',
+					'stream3_desc':'FOX',
 					'stream3_state':'',
-					'stream4_url':'',
-					'stream4_param':'',
+					'stream4_url':'https://www.youtube.com/watch?v=4uoHhbF3CNM',
+					'stream4_desc':'CNN',
 					'stream4_state':'',
 					'stream5_url':'',
-					'stream5_param':'',
+					'stream5_desc':'',
 					'stream5_state':'',
 					'stream6_url':'',
-					'stream6_param':'',
+					'stream6_desc':'',
 					'stream6_state':'',
 					'win_config':[
-						[[0],[0],[5],[4]],
-						[[0],[0],[1],[1]],
-						[[0],[0],[1],[1]],
-						[[0],[6],[3],[2]],
+						[[0],[0],[0],[3]],
+						[[0],[0],[0],[2]],
+						[[0],[6],[1],[1]],
+						[[5],[4],[1],[1]],
 					]
 };
 
@@ -67,6 +67,7 @@ function update_leds()
 			{
 				if (source2.name == slots[nr-1][0]) {
 					output.sendMessage([176,47+nr,(source2.render)?127:0]);
+					io.sockets.emit('slot_state',nr,source2.render);
 				}
 			}
 		});
@@ -184,6 +185,7 @@ function set_win_active(nr)
 	output.sendMessage([176,67,(nr==4)?127:0]);
 	output.sendMessage([176,68,(nr==5)?127:0]);
 	output.sendMessage([176,69,(nr==6)?127:0]);
+	io.sockets.emit('zoom_slot',nr);
 }
 
 function update_stream_url(item,value)
@@ -348,7 +350,7 @@ function set_win_pos(scene,source,x,y,w,h,r)
 
 
 input.on('message', function(deltaTime, message) {
-	console.log('m:' + message + ' d:' + deltaTime);
+	//console.log('m:' + message + ' d:' + deltaTime);
 
 	//output.sendMessage(message);//[176,22,1]);
 
@@ -356,7 +358,8 @@ input.on('message', function(deltaTime, message) {
 	{
 		if((message[1]>=0)&&(message[1]<6))
 		{
-			console.log("vol"+message[1]+':'+message[2]/127);
+			//console.log("vol"+message[1]+':'+message[2]/127);
+			io.sockets.emit('volume',message[1]+1,(message[2]*message[2])/(127*127)*100);
 			obs.setVolume({
 				'source': slots[message[1]][0],
 				'volume': (message[2]*message[2])/(127*127)
@@ -443,6 +446,25 @@ io.sockets.on('connection', function (socket) {
 		console.log(err);
 	});
 	
+	
+	obs.getCurrentScene({'source': 'd1'}).then(data => {
+
+		for (var source of data.sources)
+		{
+			for (var x of [1,2,3,4,5,6])
+			{
+				if(slots[x-1][0] == source.name)
+				{
+					//console.log(x+':'+source.volume);
+					socket.emit('volume',x,source.volume*100);
+				}
+			}
+		}
+
+	}).catch(err => { 
+		console.log(err);
+	});
+	
 	socket.emit('ctrl','ticker1text',obs_config.ticker1text);
 	socket.emit('ctrl','ticker2text',obs_config.ticker2text);
 	socket.emit('ctrl','ticker3text',obs_config.ticker3text);
@@ -461,14 +483,42 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('stream_url','4',obs_config.stream4_url);
 	socket.emit('stream_url','5',obs_config.stream5_url);
 	socket.emit('stream_url','6',obs_config.stream6_url);
+	socket.emit('stream_desc','1',obs_config.stream1_desc);
+	socket.emit('stream_desc','2',obs_config.stream2_desc);
+	socket.emit('stream_desc','3',obs_config.stream3_desc);
+	socket.emit('stream_desc','4',obs_config.stream4_desc);
+	socket.emit('stream_desc','5',obs_config.stream5_desc);
+	socket.emit('stream_desc','6',obs_config.stream6_desc);
 	socket.emit('stream_state','1',obs_config.stream1_state);
 	socket.emit('stream_state','2',obs_config.stream2_state);
 	socket.emit('stream_state','3',obs_config.stream3_state);
 	socket.emit('stream_state','4',obs_config.stream4_state);
 	socket.emit('stream_state','5',obs_config.stream5_state);
 	socket.emit('stream_state','6',obs_config.stream6_state);
-	socket.emit('matrix',obs_config.win_config);
+	socket.emit('matrix',obs_config.win_config);	
+	socket.emit('zoom_slot',activeSlot);
 	
+	update_leds();
+	socket.on('volume', function(nr,vol){
+			
+		console.log("vol"+nr+':'+vol/100);
+
+		obs.setVolume({
+			'source': slots[nr-1][0],
+			'volume': vol/100
+		}).then(data => {
+			//console.log(data.status);
+		}).catch(err => { 
+			console.log(err);
+		});
+
+	});
+	
+	socket.on('slot_toggle', function(nr){
+
+		toggle_win(nr);
+
+	});
 	socket.on('slot_active', function(nr){
 
 		set_win_active(nr);
@@ -523,6 +573,23 @@ io.sockets.on('connection', function (socket) {
 			obs_config.ticker1=value;
 	});
 	
+	socket.on('stream_desc', function(item,value){
+
+		if(item == '1')
+			obs_config.stream1_desc=value
+		else if(item == '2')
+			obs_config.stream2_desc=value
+		else if(item == '3')
+			obs_config.stream3_desc=value
+		else if(item == '4')
+			obs_config.stream4_desc=value
+		else if(item == '5')
+			obs_config.stream5_desc=value
+		else if(item == '6')
+			obs_config.stream6_desc=value;
+	});
+
+
 	socket.on('stream_url', function(item,value){
 
 		update_stream_url(item,value);
@@ -532,7 +599,7 @@ io.sockets.on('connection', function (socket) {
 		else if(item == '2')
 			obs_config.stream2_url=value
 		else if(item == '3')
-			obs_config.stream3_url=value;
+			obs_config.stream3_url=value
 		else if(item == '4')
 			obs_config.stream4_url=value
 		else if(item == '5')

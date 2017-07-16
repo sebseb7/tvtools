@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html><head>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 	<script src="http://localhost:8080/socket.io/socket.io.js"></script>
 	<style>
 		@keyframes tickerin {
@@ -270,6 +272,12 @@
 		}
 	</style>
 	<script>
+		$(function(){$("#volume1").slider();});
+		$(function(){$("#volume2").slider();});
+		$(function(){$("#volume3").slider();});
+		$(function(){$("#volume4").slider();});
+		$(function(){$("#volume5").slider();});
+		$(function(){$("#volume6").slider();});
 		function startTime() {
 			var today = new Date();
 			var h = today.getHours();
@@ -421,6 +429,16 @@
 				}
 			});
 		});
+		
+		socket.on('volume', function(item,vol){
+			$('#volume'+item).slider( "option", "value",vol);
+		});
+		
+		socket.on('stream_desc', function(item,value){
+			$('#stream_desc'+item).val(value);
+		});
+		
+		
 
 		socket.on('stream_url', function(item,value){
 			if(item == '1') $('#stream1_url').val(value)
@@ -437,6 +455,25 @@
 			else if(item == '4') $('#stream4_state').val(value)
 			else if(item == '5') $('#stream5_state').val(value)
 			else if(item == '6') $('#stream6_state').val(value);
+
+		});
+		socket.on('slot_state', function(item,value){
+			if(item == '1') $('#slot_1').css('background-color', value?'red':'blue');
+			else if(item == '2') $('#slot_2').css('background-color', value?'red':'blue')
+			else if(item == '3') $('#slot_3').css('background-color', value?'red':'blue')
+			else if(item == '4') $('#slot_4').css('background-color', value?'red':'blue')
+			else if(item == '5') $('#slot_5').css('background-color', value?'red':'blue')
+			else if(item == '6') $('#slot_6').css('background-color', value?'red':'blue');
+
+		});
+
+		socket.on('zoom_slot', function(item){
+			$('#zoom_1').css('background-color', (item==1)?'red':'blue');
+			$('#zoom_2').css('background-color', (item==2)?'red':'blue');
+			$('#zoom_3').css('background-color', (item==3)?'red':'blue');
+			$('#zoom_4').css('background-color', (item==4)?'red':'blue');
+			$('#zoom_5').css('background-color', (item==5)?'red':'blue');
+			$('#zoom_6').css('background-color', (item==6)?'red':'blue');
 
 		});
 		socket.on('matrix', function(matrix){
@@ -513,6 +550,7 @@
 			if (e.which == 53 && !$(':focus').length) {switch_to(5)};
 			if (e.which == 54 && !$(':focus').length) {switch_to(6)};
 		});
+		
 	</script>
 </head>
 
@@ -574,6 +612,12 @@
 			<select name="drop6" id="drop6"></select>
 		
 		</div>
+			<div id="slot_1" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M1</div>
+			<div id="slot_2" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M2</div>
+			<div id="slot_3" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M3</div>
+			<div id="slot_4" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M4</div>
+			<div id="slot_5" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M5</div>
+			<div id="slot_6" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M6</div>
 	</div>
 			
 	<div style="clear:both;">
@@ -592,34 +636,40 @@
 			<td>
 
 			<div style="clear:both;">
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream1_url"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream1_url" style="width:400px"></input></div>
 				<div id="stream_1" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream1</div>
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream1_state"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream1_state" style="width:60px"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream_desc1" style="width:200px"></input></div>
 			</div>
 			<div style="float:none">
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream2_url"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream2_url" style="width:400px"></input></div>
 				<div id="stream_2" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream2</div>
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream2_state"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream2_state" style="width:60px"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream_desc2" style="width:200px"></input></div>
 			</div>
 			<div style="float:none">
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream3_url"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream3_url" style="width:400px"></input></div>
 				<div id="stream_3" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream3</div>
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream3_state"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream3_state" style="width:60px"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream_desc3" style="width:200px"></input></div>
 			</div>
 			<div style="float:none">
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream4_url"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream4_url" style="width:400px"></input></div>
 				<div id="stream_4" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream4</div>
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream4_state"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream4_state" style="width:60px"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream_desc4" style="width:200px"></input></div>
 			</div>
 			<div style="float:none">
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream5_url"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream5_url" style="width:400px"></input></div>
 				<div id="stream_5" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream5</div>
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream5_state"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream5_state" style="width:60px"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream_desc5" style="width:200px"></input></div>
 			</div>
 			<div style="float:none;">
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream6_url"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream6_url" style="width:400px"></input></div>
 				<div id="stream_6" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream6</div>
-				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream6_state"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream6_state" style="width:60px"></input></div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream_desc6" style="width:200px"></input></div>
 			</div>
 			</td><td>
 				<table>
@@ -628,8 +678,41 @@
 					<tr><td><input id="mx31" type="text" style="width:20px" value="0"></input></td<td><input id="mx32" type="text" style="width:20px" value="0"></input></td<td><input id="mx33" type="text" style="width:20px" value="0"></input></td><td><input id="mx34" type="text" style="width:20px" value="0"></input></td></tr>
 					<tr><td><input id="mx41" type="text" style="width:20px" value="0"></input></td<td><input id="mx42" type="text" style="width:20px" value="0"></input></td<td><input id="mx43" type="text" style="width:20px" value="0"></input></td><td><input id="mx44" type="text" style="width:20px" value="0"></input></td></tr>
 				</table>
-				<br/>
 				<div id="mx_set" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+				<br/><br/>
+				<table>
+					<tr><td><input id="mx_11" type="text" style="width:20px" value="0"></input></td<td><input id="mx_12" type="text" style="width:20px" value="1"></input></td<td><input id="mx_13" type="text" style="width:20px" value="1"></input></td><td><input id="mx_14" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_21" type="text" style="width:20px" value="0"></input></td<td><input id="mx_22" type="text" style="width:20px" value="1"></input></td<td><input id="mx_23" type="text" style="width:20px" value="1"></input></td><td><input id="mx_24" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_31" type="text" style="width:20px" value="6"></input></td<td><input id="mx_32" type="text" style="width:20px" value="1"></input></td<td><input id="mx_33" type="text" style="width:20px" value="1"></input></td><td><input id="mx_34" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_41" type="text" style="width:20px" value="5"></input></td<td><input id="mx_42" type="text" style="width:20px" value="4"></input></td<td><input id="mx_43" type="text" style="width:20px" value="3"></input></td><td><input id="mx_44" type="text" style="width:20px" value="2"></input></td></tr>
+				</table>
+				<div id="mx_set2" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+			</td><td>
+				<table>
+					<tr><td><input id="mx__11" type="text" style="width:20px" value="0"></input></td<td><input id="mx__12" type="text" style="width:20px" value="0"></input></td<td><input id="mx__13" type="text" style="width:20px" value="3"></input></td><td><input id="mx__14" type="text" style="width:20px" value="2"></input></td></tr>
+					<tr><td><input id="mx__21" type="text" style="width:20px" value="6"></input></td<td><input id="mx__22" type="text" style="width:20px" value="1"></input></td<td><input id="mx__23" type="text" style="width:20px" value="1"></input></td><td><input id="mx__24" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx__31" type="text" style="width:20px" value="5"></input></td<td><input id="mx__32" type="text" style="width:20px" value="1"></input></td<td><input id="mx__33" type="text" style="width:20px" value="1"></input></td><td><input id="mx__34" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx__41" type="text" style="width:20px" value="4"></input></td<td><input id="mx__42" type="text" style="width:20px" value="1"></input></td<td><input id="mx__43" type="text" style="width:20px" value="1"></input></td><td><input id="mx__44" type="text" style="width:20px" value="1"></input></td></tr>
+				</table>
+				<div id="mx_set3" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+				<br/><br/>
+				<table>
+					<tr><td><input id="mx___11" type="text" style="width:20px" value="1"></input></td<td><input id="mx___12" type="text" style="width:20px" value="1"></input></td<td><input id="mx___13" type="text" style="width:20px" value="1"></input></td><td><input id="mx___14" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx___21" type="text" style="width:20px" value="1"></input></td<td><input id="mx___22" type="text" style="width:20px" value="1"></input></td<td><input id="mx___23" type="text" style="width:20px" value="1"></input></td><td><input id="mx___24" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx___31" type="text" style="width:20px" value="1"></input></td<td><input id="mx___32" type="text" style="width:20px" value="1"></input></td<td><input id="mx___33" type="text" style="width:20px" value="1"></input></td><td><input id="mx___34" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx___41" type="text" style="width:20px" value="1"></input></td<td><input id="mx___42" type="text" style="width:20px" value="1"></input></td<td><input id="mx___43" type="text" style="width:20px" value="1"></input></td><td><input id="mx___44" type="text" style="width:20px" value="1"></input></td></tr>
+				</table>
+				<div id="mx_set4" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+			</td><td width="200px">
+			
+					<div id="volume1" style="margin:20px;"></div>
+					<div id="volume2" style="margin:20px;"></div>
+					<div id="volume3" style="margin:20px;"></div>
+					<div id="volume4" style="margin:20px;"></div>
+					<div id="volume5" style="margin:20px;"></div>
+					<div id="volume6" style="margin:20px;"></div>
+			
+			
 			</td>
 		</tr>
 	</table>
@@ -661,6 +744,45 @@
 			}
 			socket.emit('set_matrix',win_config);
 		});
+		$('#mx_set2').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx_'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
+		$('#mx_set3').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx__'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
+		$('#mx_set4').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx___'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
 		
 		$("#clockpos").on('change keyup', function () {
 			socket.emit('ctrl','clockpos',this.value);
@@ -674,7 +796,27 @@
 		$('#stream_4').click(function(){socket.emit('stream_url',4,$('#stream4_url').val());});
 		$('#stream_5').click(function(){socket.emit('stream_url',5,$('#stream5_url').val());});
 		$('#stream_6').click(function(){socket.emit('stream_url',6,$('#stream6_url').val());});
-
+		$('#slot_1').click(function(){socket.emit('slot_toggle',1);});
+		$('#slot_2').click(function(){socket.emit('slot_toggle',2);});
+		$('#slot_3').click(function(){socket.emit('slot_toggle',3);});
+		$('#slot_4').click(function(){socket.emit('slot_toggle',4);});
+		$('#slot_5').click(function(){socket.emit('slot_toggle',5);});
+		$('#slot_6').click(function(){socket.emit('slot_toggle',6);});
+		$( "#volume1" ).on( "slidechange", function( event, ui ) {socket.emit('volume',1,$('#volume1').slider( "option", "value" ));});
+		$( "#volume2" ).on( "slidechange", function( event, ui ) {socket.emit('volume',2,$('#volume2').slider( "option", "value" ));});
+		$( "#volume3" ).on( "slidechange", function( event, ui ) {socket.emit('volume',3,$('#volume3').slider( "option", "value" ));});
+		$( "#volume4" ).on( "slidechange", function( event, ui ) {socket.emit('volume',4,$('#volume4').slider( "option", "value" ));});
+		$( "#volume5" ).on( "slidechange", function( event, ui ) {socket.emit('volume',5,$('#volume5').slider( "option", "value" ));});
+		$( "#volume6" ).on( "slidechange", function( event, ui ) {socket.emit('volume',6,$('#volume6').slider( "option", "value" ));});
+		
+		$('#stream_desc1').on('change keyup', function () {socket.emit('stream_desc',1,this.value);});	
+		$('#stream_desc2').on('change keyup', function () {socket.emit('stream_desc',2,this.value);});	
+		$('#stream_desc3').on('change keyup', function () {socket.emit('stream_desc',3,this.value);});	
+		$('#stream_desc4').on('change keyup', function () {socket.emit('stream_desc',4,this.value);});	
+		$('#stream_desc5').on('change keyup', function () {socket.emit('stream_desc',5,this.value);});	
+		$('#stream_desc6').on('change keyup', function () {socket.emit('stream_desc',6,this.value);});	
+		
+		
 		$("#rot_1").on('change keyup', function () {
 			socket.emit('slot_set',1,$('#drop1').val(),this.value);
 		});	
