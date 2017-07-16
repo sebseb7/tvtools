@@ -256,7 +256,6 @@
 		div.clock {
 			position: absolute;
 			top: 0;
-			left: 320px;
 			margin-left:20px;
 			background-color:rgba(44,44,44,0.9);
 			border-radius:5px;
@@ -280,7 +279,8 @@
 			var n = today.getMonth()+1;
 			var y = today.getFullYear();
 			document.getElementById('txt').innerHTML = ("00"+h).slice(-2) + ":" + ("00"+m).slice(-2) + ":" + ("00"+s).slice(-2);
-			document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2) + "/" + ("00"+y).slice(-2);
+			document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2);
+			//document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2) + "/" + ("00"+y).slice(-2);
 			var t = setTimeout(startTime, 500);
 		}
 		var image = new Image();
@@ -324,10 +324,12 @@
 		};
 		
 		function clock1_live() {
-			$("#live_label").css('color', 'red');
+			//$("#live_label").css('color', 'red');
+			$("#live_label").show();
 		};
 		function clock1_nolive() {
-			$("#live_label").css('color', 'black');
+			//$("#live_label").css('color', 'black');
+			$("#live_label").hide();
 		};
 		function clock1_intop() {
 			$('#clock1').addClass('clock-inTop');
@@ -354,13 +356,19 @@
 			$('#ticker1').addClass('ticker-out');
 		};
 		
-		socket.on('sources', function(sources){
+		socket.on('sources', function(sources,slots){
 			$('#drop1').empty();
 			$('#drop2').empty();
 			$('#drop3').empty();
 			$('#drop4').empty();
 			$('#drop5').empty();
 			$('#drop6').empty();
+			$('#rot_1').val(slots[0][2]);
+			$('#rot_2').val(slots[1][2]);
+			$('#rot_3').val(slots[2][2]);
+			$('#rot_4').val(slots[3][2]);
+			$('#rot_5').val(slots[4][2]);
+			$('#rot_6').val(slots[5][2]);
 			$("<option />", {val: "none",text: "none"}).appendTo($('#drop1'));
 			$("<option />", {val: "none",text: "none"}).appendTo($('#drop2'));
 			$("<option />", {val: "none",text: "none"}).appendTo($('#drop3'));
@@ -370,42 +378,42 @@
 			sources.forEach(source => {
 				//alert(source.name);
 				if(source.name.substring(0, 1) !== '_'){
-					if(source.name == 'yt1'){
+					if(source.name == slots[0][0]){
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop1'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop1'));
 					}
 				}
 				if(source.name.substring(0, 1) !== '_'){
-					if(source.name == 'yt2'){
+					if(source.name == slots[1][0]){
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop2'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop2'));
 					}
 				}
 				if(source.name.substring(0, 1) !== '_'){
-					if(source.name == 'yt3'){
+					if(source.name == slots[2][0]){
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop3'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop3'));
 					}
 				}
 				if(source.name.substring(0, 1) !== '_'){
-					if(source.name == 'yt4'){
+					if(source.name == slots[3][0]){
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop4'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop4'));
 					}
 				}
 				if(source.name.substring(0, 1) !== '_'){
-					if(source.name == 'yt5'){
+					if(source.name == slots[4][0]){
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop5'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop5'));
 					}
 				}
 				if(source.name.substring(0, 1) !== '_'){
-					if(source.name == 'yt6'){
+					if(source.name == slots[5][0]){
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop6'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop6'));
@@ -414,8 +422,39 @@
 			});
 		});
 
+		socket.on('stream_url', function(item,value){
+			if(item == '1') $('#stream1_url').val(value)
+			else if(item == '2') $('#stream2_url').val(value)
+			else if(item == '3') $('#stream3_url').val(value)
+			else if(item == '4') $('#stream4_url').val(value)
+			else if(item == '5') $('#stream5_url').val(value)
+			else if(item == '6') $('#stream6_url').val(value);
+		});
+		socket.on('stream_state', function(item,value){
+			if(item == '1') $('#stream1_state').val(value)
+			else if(item == '2') $('#stream2_state').val(value)
+			else if(item == '3') $('#stream3_state').val(value)
+			else if(item == '4') $('#stream4_state').val(value)
+			else if(item == '5') $('#stream5_state').val(value)
+			else if(item == '6') $('#stream6_state').val(value);
+
+		});
+		socket.on('matrix', function(matrix){
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					$('#mx'+x+''+y).val(matrix[x-1][y-1]);
+				}
+			}
+		});
 		socket.on('ctrl', function(item,value){
-			if(item == 'banner1'){
+			
+			if(item == 'clockpos'){
+				$('#clockpos').val(value);
+				$('#clock1').css('left',value+'px');
+			}
+			else if(item == 'banner1'){
 				if(value == 'in') banner1_in()
 				else if (value == 'in_low') banner1_in_low()
 				else banner1_out();
@@ -444,15 +483,19 @@
 			}
 			else if(item == 'ticker1text'){
 				ticker1_text(value);
+				$("#ticker_1").val(value);
 			}
 			else if(item == 'ticker2text'){
 				ticker2_text(value);
+				$("#ticker_2").val(value);
 			}
 			else if(item == 'ticker3text'){
 				ticker3_text(value);
+				$("#ticker_3").val(value);
 			}
 			else if(item == 'ticker4text'){
 				ticker4_text(value);
+				$("#ticker_4").val(value);
 			}
 
 		});
@@ -460,12 +503,7 @@
 			$('#ticker1').removeClass('invis');
 		}
 		function switch_to(id) {
-			socket.emit('obs_pos','main',$('#drop'+id).val(),1280/4*1,0,1,1);
-			socket.emit('obs_pos','main',$('#drop'+(2==id ? 1 : 2)).val(),1280/4*1,720/4*3,1/3,1/3);
-			socket.emit('obs_pos','main',$('#drop'+(3==id ? 1 : 3)).val(),1280/4*2,720/4*3,1/3,1/3);
-			socket.emit('obs_pos','main',$('#drop'+(4==id ? 1 : 4)).val(),1280/4*3,720/4*3,1/3,1/3);
-			socket.emit('obs_pos','main',$('#drop'+(5==id ? 1 : 5)).val(),0,720/4*3,1/3,1/3);
-			socket.emit('obs_pos','main',$('#drop'+(6==id ? 1 : 6)).val(),0,720/4*2,1/3,1/3);
+			socket.emit('slot_active',id);
 		}
 		$(document).keypress(function(e) {
 			if (e.which == 49 && !$(':focus').length) {switch_to(1)};
@@ -481,7 +519,8 @@
 <body no_onclick="location.reload();" onload="startTime();setTimeout(loaded,2000);">
 
 	<div class="output">
-		<div id="clock1" class="clock clock-inTop"><span style="color:rgb(33,255,33)">Seb Green</span> <span style="color:white;font-size:10px" id="txt2"></span> <span style="color:white" id="txt"></span>&nbsp;<span id="live_label" style="color:red">LIVE</span></div>
+			
+		<div id="clock1" style="left:320px" class="clock clock-inTop"><span style="color:rgb(33,255,33)">S<span style="font-size:0.6em">eb</span>G<span style="font-size:0.6em">reen</span></span> <span style="color:white;font-size:10px" id="txt2"></span> <span style="color:white" id="txt"></span>&nbsp;<span id="live_label" style="color:red;">LIVE</span></div>
 		<div id="banner1" class="banner-center banner-isout"><span id="banner1_red" style="color:red"></span> <span id="banner1_norm"></span>&nbsp;</div>
 		<div id="ticker1" class="ticker-wrap ticker-out invis">
 			<div class="ticker">
@@ -495,6 +534,7 @@
 
 
 	<div style="margin-top:30px;">
+		<div style="float:left;margin:5px;padding:10px;background-color: blue;color:white;"><input type="text" id="clockpos" style="width:60px;"></input></div>
 		<div id="button_cltin" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Clock IN</div>
 		<div id="button_cltout" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Clock Out</div>
 		<div id="button_live" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">LIVE</div>
@@ -520,16 +560,22 @@
 		<div id="zoom_5" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">5</div>
 		<div id="zoom_6" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">6</div>
 		<div style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">
-		
+			<input type="text" id="rot_1" style="width:30px" value="0"></input>	
 			<select name="drop1" id="drop1"></select>
+			<input type="text" id="rot_2" style="width:30px" value="0"></input>	
 			<select name="drop2" id="drop2"></select>
+			<input type="text" id="rot_3" style="width:30px" value="0"></input>	
 			<select name="drop3" id="drop3"></select>
+			<input type="text" id="rot_4" style="width:30px" value="0"></input>	
 			<select name="drop4" id="drop4"></select>
+			<input type="text" id="rot_5" style="width:30px" value="0"></input>	
 			<select name="drop5" id="drop5"></select>
+			<input type="text" id="rot_6" style="width:30px" value="0"></input>	
 			<select name="drop6" id="drop6"></select>
 		
 		</div>
 	</div>
+			
 	<div style="clear:both;">
 		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="ticker_1"></input></div>
 		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="ticker_2"></input></div>
@@ -539,6 +585,56 @@
 		<div id="ticker_out" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Ticker Out</div>
 	</div>
 	
+	<div style="clear:both;">
+	</div>
+	<table>
+		<tr>
+			<td>
+
+			<div style="clear:both;">
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream1_url"></input></div>
+				<div id="stream_1" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream1</div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream1_state"></input></div>
+			</div>
+			<div style="float:none">
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream2_url"></input></div>
+				<div id="stream_2" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream2</div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream2_state"></input></div>
+			</div>
+			<div style="float:none">
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream3_url"></input></div>
+				<div id="stream_3" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream3</div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream3_state"></input></div>
+			</div>
+			<div style="float:none">
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream4_url"></input></div>
+				<div id="stream_4" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream4</div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream4_state"></input></div>
+			</div>
+			<div style="float:none">
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream5_url"></input></div>
+				<div id="stream_5" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream5</div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream5_state"></input></div>
+			</div>
+			<div style="float:none;">
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream6_url"></input></div>
+				<div id="stream_6" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Stream6</div>
+				<div style="float:left;margin:10px;padding:5px;"><input type="text" id="stream6_state"></input></div>
+			</div>
+			</td><td>
+				<table>
+					<tr><td><input id="mx11" type="text" style="width:20px" value="0"></input></td<td><input id="mx12" type="text" style="width:20px" value="0"></input></td<td><input id="mx13" type="text" style="width:20px" value="0"></input></td><td><input id="mx14" type="text" style="width:20px" value="0"></input></td></tr>
+					<tr><td><input id="mx21" type="text" style="width:20px" value="0"></input></td<td><input id="mx22" type="text" style="width:20px" value="0"></input></td<td><input id="mx23" type="text" style="width:20px" value="0"></input></td><td><input id="mx24" type="text" style="width:20px" value="0"></input></td></tr>
+					<tr><td><input id="mx31" type="text" style="width:20px" value="0"></input></td<td><input id="mx32" type="text" style="width:20px" value="0"></input></td<td><input id="mx33" type="text" style="width:20px" value="0"></input></td><td><input id="mx34" type="text" style="width:20px" value="0"></input></td></tr>
+					<tr><td><input id="mx41" type="text" style="width:20px" value="0"></input></td<td><input id="mx42" type="text" style="width:20px" value="0"></input></td<td><input id="mx43" type="text" style="width:20px" value="0"></input></td><td><input id="mx44" type="text" style="width:20px" value="0"></input></td></tr>
+				</table>
+				<br/>
+				<div id="mx_set" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+			</td>
+		</tr>
+	</table>
+
+
 <div id="cube1" class="wrap cube-in">
 	<div class="cube">
 		<div class="front"><image width="30" height="30" id="pic1"/></div>
@@ -552,6 +648,72 @@
 	
 	
 	<script>
+		$('#mx_set').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
+		
+		$("#clockpos").on('change keyup', function () {
+			socket.emit('ctrl','clockpos',this.value);
+			$('#clock1').css('left',this.value+'px')
+		});	
+		
+		
+		$('#stream_1').click(function(){socket.emit('stream_url',1,$('#stream1_url').val());});
+		$('#stream_2').click(function(){socket.emit('stream_url',2,$('#stream2_url').val());});
+		$('#stream_3').click(function(){socket.emit('stream_url',3,$('#stream3_url').val());});
+		$('#stream_4').click(function(){socket.emit('stream_url',4,$('#stream4_url').val());});
+		$('#stream_5').click(function(){socket.emit('stream_url',5,$('#stream5_url').val());});
+		$('#stream_6').click(function(){socket.emit('stream_url',6,$('#stream6_url').val());});
+
+		$("#rot_1").on('change keyup', function () {
+			socket.emit('slot_set',1,$('#drop1').val(),this.value);
+		});	
+		$("#rot_2").on('change keyup', function () {
+			socket.emit('slot_set',2,$('#drop2').val(),this.value);
+		});	
+		$("#rot_3").on('change keyup', function () {
+			socket.emit('slot_set',3,$('#drop3').val(),this.value);
+		});	
+		$("#rot_4").on('change keyup', function () {
+			socket.emit('slot_set',4,$('#drop4').val(),this.value);
+		});	
+		$("#rot_5").on('change keyup', function () {
+			socket.emit('slot_set',5,$('#drop5').val(),this.value);
+		});	
+		$("#rot_6").on('change keyup', function () {
+			socket.emit('slot_set',6,$('#drop6').val(),this.value);
+		});	
+
+
+
+		$('#drop1').change(function(){
+			socket.emit('slot_set',1,this.value,$('#rot_1').val());
+		});
+		$('#drop2').change(function(){
+			socket.emit('slot_set',2,this.value,$('#rot_2').val());
+		});
+		$('#drop3').change(function(){
+			socket.emit('slot_set',3,this.value,$('#rot_3').val());
+		});
+		$('#drop4').change(function(){
+			socket.emit('slot_set',4,this.value,$('#rot_4').val());
+		});
+		$('#drop5').change(function(){
+			socket.emit('slot_set',5,this.value,$('#rot_5').val());
+		});
+		$('#drop6').change(function(){
+			socket.emit('slot_set',6,this.value,$('#rot_6').val());
+		});
 		$('#zoom_1').click(function(){
 			switch_to(1);
 		});
@@ -660,6 +822,7 @@
 
 </script>
 
+<br/>
 <br/>
 <br/>
 
