@@ -969,6 +969,11 @@
 		document.getElementById("pic5").src = image.src;
 		document.getElementById("pic6").src = image.src;
 
+var url = 'https://www.facebook.com/seb.greenbus/videos/2336248033266440/';
+
+$.getJSON('https://www.facebook.com/plugins/video/oembed.json/?url='+url+'&format=json', function(data) {
+console.log(data);
+});
 </script>
 
 <br/>
