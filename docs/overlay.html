@@ -247,7 +247,7 @@
 			font-family:sans-serif;
 			font-weight:bold;
 			font-size:30pt;
-			margin-top:460px;
+			margin-top:90px;
 			padding:10px;
 		}
 		body {
@@ -314,9 +314,11 @@
 		};
 		function banner1_text(txt) {
 			$('#banner1_norm').html(txt);
+			$('#banner1text').val(txt);
 		};
 		function banner1_rtext(txt) {
 			$('#banner1_red').html(txt);
+			$('#banner1rtext').val(txt);
 		};
 		function ticker1_text(txt) {
 			$('#ticker1_text').html(txt);
@@ -556,7 +558,7 @@
 
 <body no_onclick="location.reload();" onload="startTime();setTimeout(loaded,2000);">
 
-	<div class="output">
+	<div id="output" class="output">
 			
 		<div id="clock1" style="left:320px" class="clock clock-inTop"><span style="color:rgb(33,255,33)">S<span style="font-size:0.6em">eb</span>G<span style="font-size:0.6em">reen</span></span> <span style="color:white;font-size:10px" id="txt2"></span> <span style="color:white" id="txt"></span>&nbsp;<span id="live_label" style="color:red;">LIVE</span></div>
 		<div id="banner1" class="banner-center banner-isout"><span id="banner1_red" style="color:red"></span> <span id="banner1_norm"></span>&nbsp;</div>
@@ -568,6 +570,16 @@
 				<div id="ticker4_text" class="ticker__item"></div>
 			</div>
 		</div>
+<div id="cube1" class="wrap cube-in">
+	<div class="cube">
+		<div class="front"><image width="30" height="30" id="pic1"/></div>
+		<div class="back"><image width="30" height="30" id="pic2"/></div>
+		<div class="top"><image width="30" height="30" id="pic3"/></div>
+		<div class="bottom"><image width="30" height="30" id="pic4"/></div>
+		<div class="left"><image width="30" height="30" id="pic5"/></div>
+		<div class="right"><image width="30" height="30" id="pic6"/></div>
+	</div>
+</div>
 	</div>
 
 
@@ -718,16 +730,6 @@
 	</table>
 
 
-<div id="cube1" class="wrap cube-in">
-	<div class="cube">
-		<div class="front"><image width="30" height="30" id="pic1"/></div>
-		<div class="back"><image width="30" height="30" id="pic2"/></div>
-		<div class="top"><image width="30" height="30" id="pic3"/></div>
-		<div class="bottom"><image width="30" height="30" id="pic4"/></div>
-		<div class="left"><image width="30" height="30" id="pic5"/></div>
-		<div class="right"><image width="30" height="30" id="pic6"/></div>
-	</div>
-</div>
 	
 	
 	<script>
@@ -788,6 +790,11 @@
 			socket.emit('ctrl','clockpos',this.value);
 			$('#clock1').css('left',this.value+'px')
 		});	
+		
+		$('#output').click(function(){
+			$('#output').css('transform', 'scale(' + 0.5 + ')');
+			$('#output').css('height', '360px');
+		});
 		
 		
 		$('#stream_1').click(function(){socket.emit('stream_url',1,$('#stream1_url').val());});
@@ -931,11 +938,11 @@
 			ticker1_out();
 		});
 		
-		$("#banner1text").on('change keyup', function () {
+		$("#banner1text").on('change', function () {
 			socket.emit('ctrl','banner1text',this.value);
 			banner1_text(this.value);
 		});	
-		$("#banner1rtext").on('change keyup', function () {
+		$("#banner1rtext").on('change', function () {
 			socket.emit('ctrl','banner1rtext',this.value);
 			banner1_rtext(this.value);
 		});	
@@ -972,6 +979,7 @@
 <br/>
 &lt;img align="top" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" height="25"/&gt; seb.greenbus
 
+<div id="fb-root"></div> <script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.9"; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><div class="fb-video" data-href="https://www.facebook.com/seb.greenbus/videos/2336248033266440/"><blockquote cite="https://www.facebook.com/seb.greenbus/videos/2336248033266440/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/seb.greenbus/videos/2336248033266440/"></a><p>Chernobyl New "Safe" Confinement</p>Posted by <a href="#" role="button">Sebastian Green</a> on Sunday, July 16, 2017</blockquote></div>
 
 </body></html>
 

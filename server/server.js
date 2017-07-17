@@ -27,14 +27,14 @@ var obs_config = {
 					'stream1_url':'hlsvariant://http://infowarslive-lh.akamaihd.net/i/infowarslivestream_1@353459/master.m3u8',
 					'stream1_desc':'IW',
 					'stream1_state':'',
-					'stream2_url':'https://www.youtube.com/watch?v=dJep21Gdpys',
-					'stream2_desc':'OAN',
+					'stream2_url':'https://www.youtube.com/watch?v=RiiSF2DxxTE',
+					'stream2_desc':'fox',
 					'stream2_state':'',
-					'stream3_url':'https://www.youtube.com/watch?v=RiiSF2DxxTE',
-					'stream3_desc':'FOX',
+					'stream3_url':'https://www.youtube.com/watch?v=dJep21Gdpys',
+					'stream3_desc':'oan',
 					'stream3_state':'',
-					'stream4_url':'https://www.youtube.com/watch?v=4uoHhbF3CNM',
-					'stream4_desc':'CNN',
+					'stream4_url':'',
+					'stream4_desc':'',
 					'stream4_state':'',
 					'stream5_url':'',
 					'stream5_desc':'',
@@ -228,7 +228,15 @@ function update_stream_url(item,value)
 
 	ls.stderr.on('data', (data) => {
 		console.log('stderr: '+data);
-	}) 
+		if(data.toString().match("No data returned from stream"))
+		{
+			//ls.kill();
+			obs_config['stream'+item+'_state']='killing';
+			io.sockets.emit('stream_state',item,'killing');
+			console.log("ENDENDE"+ls.pid);
+			spawn("taskkill", ["/pid", ls.pid, '/f', '/t']);
+		}
+	});
 
 	ls.on('close', (code) => {
 		console.log(`child process exited with code ${code}`);
