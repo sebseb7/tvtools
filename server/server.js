@@ -1,3 +1,21 @@
+//const service = require ("os-service");
+//const fs = require('fs');
+/*
+var options = {
+    displayName: "obs-server",
+};
+service.add ("my-service", options, function(error) {
+    if (error)
+        console.log(error);
+});
+*/
+
+//var logStream = fs.createWriteStream (process.argv[1] + ".log");
+
+//service.run (logStream, function () {
+//	service.stop (0);
+//});
+
 var midi = require('midi');
 var http = require('http');
 var OBSWebSocket = require('obs-websocket-js');
@@ -27,26 +45,61 @@ var obs_config = {
 					'stream1_url':'hlsvariant://http://infowarslive-lh.akamaihd.net/i/infowarslivestream_1@353459/master.m3u8',
 					'stream1_desc':'IW',
 					'stream1_state':'',
-					'stream2_url':'https://www.youtube.com/watch?v=RiiSF2DxxTE',
+					'stream2_url':'https://www.youtube.com/watch?v=y_f8YB_adNI',
 					'stream2_desc':'fox',
 					'stream2_state':'',
-					'stream3_url':'https://www.youtube.com/watch?v=dJep21Gdpys',
-					'stream3_desc':'oan',
+					'stream3_url':'https://www.youtube.com/watch?v=DO3qWDxgTQU',
+					'stream3_desc':'P',
 					'stream3_state':'',
-					'stream4_url':'',
-					'stream4_desc':'',
+					'stream4_url':'https://www.periscope.tv/w/1lPJqwgaeZeKb',
+					'stream4_desc':'Y',
 					'stream4_state':'',
-					'stream5_url':'',
-					'stream5_desc':'',
+					'stream5_url':'https://www.youtube.com/watch?v=2QBc47m7ln4',
+					'stream5_desc':'X',
 					'stream5_state':'',
-					'stream6_url':'',
-					'stream6_desc':'',
+					'stream6_url':'hls://"http://cspan1-lh.akamaihd.net/i/cspan1_1@304727/index_1000_av-p.m3u8?sd=10&rebase=on"',
+					'stream6_desc':'CSPAN',
 					'stream6_state':'',
 					'win_config':[
-						[[0],[0],[0],[3]],
+						[[0],[0],[0],[4]],
 						[[0],[0],[0],[2]],
-						[[0],[6],[1],[1]],
-						[[5],[4],[1],[1]],
+						[[0],[0],[8],[1]],
+						[[7],[6],[5],[3]],
+
+						[[0],[0],[8],[4]],
+						[[0],[0],[7],[3]],
+						[[0],[0],[6],[2]],
+						[[0],[0],[5],[1]],
+
+						[[0],[0],[2],[2]],
+						[[8],[7],[2],[2]],
+						[[6],[5],[1],[1]],
+						[[4],[3],[1],[1]],
+
+						[[0],[0],[5],[3]],
+						[[0],[0],[4],[2]],
+						[[0],[8],[1],[1]],
+						[[7],[6],[1],[1]],
+
+						[[0],[0],[4],[2]],
+						[[0],[0],[1],[1]],
+						[[0],[8],[1],[1]],
+						[[7],[6],[5],[3]],
+
+						[[8],[7],[3],[2]],
+						[[6],[1],[1],[1]],
+						[[5],[1],[1],[1]],
+						[[4],[1],[1],[1]],
+
+						[[8],[1],[1],[1]],
+						[[7],[1],[1],[1]],
+						[[6],[1],[1],[1]],
+						[[5],[4],[3],[2]],
+
+						[[1],[1],[1],[1]],
+						[[1],[1],[1],[1]],
+						[[1],[1],[1],[1]],
+						[[1],[1],[1],[1]],
 					]
 };
 
@@ -56,7 +109,7 @@ var output = new midi.output();
 
 console.log(input.getPortCount());
 console.log(output.getPortCount());
-input.openPort(0);
+input.openPort(1);
 output.openPort(1);
 
 function update_leds()
@@ -172,12 +225,12 @@ function set_win_active(nr)
 	console.log('active slot:'+nr);
 
 
-	set_win_pos('main',slots[nr-1][0],win_get_x(1),win_get_y(1),win_get_xMax(1),win_get_yMax(1),slots[nr-1][2]);
-	set_win_pos('main',slots[(2==nr)? 0 : 1][0],win_get_x(2),win_get_y(2),win_get_xMax(2),win_get_yMax(2),slots[(2==nr)?0:1][2]);
-	set_win_pos('main',slots[(3==nr)? 0 : 2][0],win_get_x(3),win_get_y(3),win_get_xMax(3),win_get_yMax(3),slots[(3==nr)?0:2][2]);
-	set_win_pos('main',slots[(4==nr)? 0 : 3][0],win_get_x(4),win_get_y(4),win_get_xMax(4),win_get_yMax(4),slots[(4==nr)?0:3][2]);
-	set_win_pos('main',slots[(5==nr)? 0 : 4][0],win_get_x(5),win_get_y(5),win_get_xMax(5),win_get_yMax(5),slots[(5==nr)?0:4][2]);
-	set_win_pos('main',slots[(6==nr)? 0 : 5][0],win_get_x(6),win_get_y(6),win_get_xMax(6),win_get_yMax(6),slots[(6==nr)?0:5][2]);
+	set_win_pos(nr,'main',slots[nr-1][0],win_get_x(1),win_get_y(1),win_get_xMax(1),win_get_yMax(1),slots[nr-1][2]);
+	set_win_pos((2==nr)?1:2,'main',slots[(2==nr)? 0 : 1][0],win_get_x(2),win_get_y(2),win_get_xMax(2),win_get_yMax(2),slots[(2==nr)?0:1][2]);
+	set_win_pos((3==nr)?1:3,'main',slots[(3==nr)? 0 : 2][0],win_get_x(3),win_get_y(3),win_get_xMax(3),win_get_yMax(3),slots[(3==nr)?0:2][2]);
+	set_win_pos((4==nr)?1:4,'main',slots[(4==nr)? 0 : 3][0],win_get_x(4),win_get_y(4),win_get_xMax(4),win_get_yMax(4),slots[(4==nr)?0:3][2]);
+	set_win_pos((5==nr)?1:5,'main',slots[(5==nr)? 0 : 4][0],win_get_x(5),win_get_y(5),win_get_xMax(5),win_get_yMax(5),slots[(5==nr)?0:4][2]);
+	set_win_pos((6==nr)?1:6,'main',slots[(6==nr)? 0 : 5][0],win_get_x(6),win_get_y(6),win_get_xMax(6),win_get_yMax(6),slots[(6==nr)?0:5][2]);
 
 	output.sendMessage([176,64,(nr==1)?127:0]);
 	output.sendMessage([176,65,(nr==2)?127:0]);
@@ -190,14 +243,22 @@ function set_win_active(nr)
 
 function update_stream_url(item,value)
 {
-	if(obs_config['stream'+item+'_state']!=='') return;
+	if(obs_config['stream'+item+'_state']!=='')
+	{
+		//obs_config['stream'+item+'_state']='killing';
+		//io.sockets.emit('stream_state',item,'killing');
+		//console.log("ENDENDE"+ls.pid);
+		//spawn("taskkill", ["/pid", ls.pid, '/f', '/t']);
+
+		return;
+	}
 
 
 	console.log('update stream:'+item+':'+value);
-	var ls = spawn('streamlink', [value, '480p,720p,best','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: true});
+	var ls = spawn('streamlink', [value, '360p,480p,720p,best','--hls-live-edge','6','--ringbuffer-size','32M','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
 
-	obs_config['stream'+item+'_state']='loading';
-	io.sockets.emit('stream_state',item,'loading');
+	obs_config['stream'+item+'_state']='L';
+	io.sockets.emit('stream_state',item,'L');
 	//socket.broadcast.emit('ctrl',item,value);
 
 	ls.stdout.on('data', (data) => {
@@ -207,12 +268,13 @@ function update_stream_url(item,value)
 			//ls.kill();
 			obs_config['stream'+item+'_state']='killing';
 			io.sockets.emit('stream_state',item,'killing');
-			console.log("ENDENDE"+ls.pid);
-			spawn("taskkill", ["/pid", ls.pid, '/f', '/t']);
+			console.log("_1ENDENDE"+ls.pid);
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", ls.pid, '/f', '/t'])
+				else process.kill(ls.pid);
 		}
 		if(data.toString().match("Starting server"))
 		{
-			//ls.kill();
 			obs_config['stream'+item+'_state']='running';
 			io.sockets.emit('stream_state',item,'running');
 		}
@@ -221,8 +283,10 @@ function update_stream_url(item,value)
 			//ls.kill();
 			obs_config['stream'+item+'_state']='killing';
 			io.sockets.emit('stream_state',item,'killing');
-			console.log("ENDENDE"+ls.pid);
-			spawn("taskkill", ["/pid", ls.pid, '/f', '/t']);
+			console.log("_2ENDENDE"+ls.pid);
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", ls.pid, '/f', '/t'])
+				else process.kill(ls.pid);
 		}
 	});
 
@@ -233,8 +297,10 @@ function update_stream_url(item,value)
 			//ls.kill();
 			obs_config['stream'+item+'_state']='killing';
 			io.sockets.emit('stream_state',item,'killing');
-			console.log("ENDENDE"+ls.pid);
-			spawn("taskkill", ["/pid", ls.pid, '/f', '/t']);
+			console.log("_3ENDENDE"+ls.pid);
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", ls.pid, '/f', '/t'])
+				else process.kill(ls.pid);
 		}
 	});
 
@@ -263,7 +329,7 @@ function update_stream_url(item,value)
 	});
 }
 
-function set_win_pos(scene,source,x,y,w,h,r)
+function set_win_pos(nr,scene,source,x,y,w,h,r)
 {
 
 	//console.log('pos: ' + scene + ' ' + source);
@@ -304,6 +370,8 @@ function set_win_pos(scene,source,x,y,w,h,r)
 				}
 			}
 		});
+			
+		io.sockets.emit('tile',nr,x,y);
 
 		if(r==-90)
 		{
@@ -324,6 +392,7 @@ function set_win_pos(scene,source,x,y,w,h,r)
 
 		if(source !== 'none')
 		{
+
 			obs.setSceneItemPosition({
 				'scene-name': scene,
 				'item': source,
@@ -392,15 +461,22 @@ input.on('message', function(deltaTime, message) {
 
 });
 
+var obs_connected = false;
 
+function connect_to_obs()
+{
+	if(obs_connected) return;
 
-
-obs.connect({ address: 'localhost:4444', password: 'websocketpw' })
-	.then(() => {
+	obs.connect({ address: 'localhost:4444', password: 'websocketpw' }).then(() => {
 		console.log('Success! We\'re connected & authenticated.');
+		obs_connected = true;
 		return obs.getSceneList({});
-	})
-	.then(data => {
+	}).catch(err => { // Ensure that you add a catch handler to every Promise chain.
+
+		setTimeout(connect_to_obs, 5000);
+		throw('ERRORXY:'+err+" (retry in 5s)");
+	}).then(data => {
+		
 		//console.log(`${data.scenes.length} Available Scenes!`);
 		//data.scenes.forEach(scene => {
 		//	if (scene.name !== data.currentScene) {
@@ -419,7 +495,7 @@ obs.connect({ address: 'localhost:4444', password: 'websocketpw' })
 			}).then(data => {
 				//console.log(data.status);
 			}).catch(err => { 
-				console.log(err);
+				console.log('E2x:'+err);
 			});
 		};
 		
@@ -432,12 +508,14 @@ obs.connect({ address: 'localhost:4444', password: 'websocketpw' })
 
 		
 		});	
+		obs.on('ConnectionClosed', function(data){
+			obs_connected=false;
+		});
 	
-	})
-	.catch(err => { // Ensure that you add a catch handler to every Promise chain.
+	}).catch(err => { // Ensure that you add a catch handler to every Promise chain.
 		console.log('ERROR:'+err);
 	});
-
+}
 
 
 
@@ -446,6 +524,8 @@ obs.connect({ address: 'localhost:4444', password: 'websocketpw' })
 
 // When a client connects, we note it in the console
 io.sockets.on('connection', function (socket) {
+
+	if(!obs_connected) connect_to_obs();
 	console.log('A client is connected!');
 		
 	obs.getCurrentScene({}).then(data => {
@@ -508,8 +588,9 @@ io.sockets.on('connection', function (socket) {
 	
 	update_leds();
 	socket.on('volume', function(nr,vol){
+		if(!obs_connected) connect_to_obs();
 			
-		console.log("vol"+nr+':'+vol/100);
+		//console.log("vol"+nr+':'+vol/100);
 
 		obs.setVolume({
 			'source': slots[nr-1][0],
@@ -523,11 +604,13 @@ io.sockets.on('connection', function (socket) {
 	});
 	
 	socket.on('slot_toggle', function(nr){
+		if(!obs_connected) connect_to_obs();
 
 		toggle_win(nr);
 
 	});
 	socket.on('slot_active', function(nr){
+		if(!obs_connected) connect_to_obs();
 
 		set_win_active(nr);
 
