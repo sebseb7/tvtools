@@ -270,6 +270,14 @@
 			opacity:0.65;
 			xxxxtext-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000; 
 		}
+		div.tile {
+			font-size:40px;
+			color: white;
+			background-color:rgba(44,44,44,0.9);
+			position: absolute;
+			top: 0px;
+			left:0px;
+		}
 	</style>
 	<script>
 		$(function(){$("#volume1").slider();});
@@ -433,11 +441,20 @@
 		});
 		
 		socket.on('volume', function(item,vol){
-			$('#volume'+item).slider( "option", "value",vol);
+			if($('#volume'+item).is( ".ui-slider"))
+			{
+				$('#volume'+item).slider( "option", "value",vol);
+			}
+		});
+		socket.on('tile', function(item,x,y){
+			//alert(item+':'+x+':'+y);
+			$('#tile'+item).css('left',x);
+			$('#tile'+item).css('top',y);
 		});
 		
 		socket.on('stream_desc', function(item,value){
 			$('#stream_desc'+item).val(value);
+			$('#tile'+item).find('.name').html(value);
 		});
 		
 		
@@ -466,6 +483,13 @@
 			else if(item == '4') $('#slot_4').css('background-color', value?'red':'blue')
 			else if(item == '5') $('#slot_5').css('background-color', value?'red':'blue')
 			else if(item == '6') $('#slot_6').css('background-color', value?'red':'blue');
+			
+			if(item == '1') $('#tile1').css('display', value?'block':'none');
+			else if(item == '2') $('#tile2').css('display', value?'block':'none')
+			else if(item == '3') $('#tile3').css('display', value?'block':'none')
+			else if(item == '4') $('#tile4').css('display', value?'block':'none')
+			else if(item == '5') $('#tile5').css('display', value?'block':'none')
+			else if(item == '6') $('#tile6').css('display', value?'block':'none');
 
 		});
 
@@ -570,16 +594,22 @@
 				<div id="ticker4_text" class="ticker__item"></div>
 			</div>
 		</div>
-<div id="cube1" class="wrap cube-in">
-	<div class="cube">
-		<div class="front"><image width="30" height="30" id="pic1"/></div>
-		<div class="back"><image width="30" height="30" id="pic2"/></div>
-		<div class="top"><image width="30" height="30" id="pic3"/></div>
-		<div class="bottom"><image width="30" height="30" id="pic4"/></div>
-		<div class="left"><image width="30" height="30" id="pic5"/></div>
-		<div class="right"><image width="30" height="30" id="pic6"/></div>
-	</div>
-</div>
+		<div id="cube1" class="wrap cube-in">
+			<div class="cube">
+				<div class="front"><image width="30" height="30" id="pic1"/></div>
+				<div class="back"><image width="30" height="30" id="pic2"/></div>
+				<div class="top"><image width="30" height="30" id="pic3"/></div>
+				<div class="bottom"><image width="30" height="30" id="pic4"/></div>
+				<div class="left"><image width="30" height="30" id="pic5"/></div>
+				<div class="right"><image width="30" height="30" id="pic6"/></div>
+			</div>
+		</div>
+		<div id="tile1" class="tile">1 <span class="name"></span></div>
+		<div id="tile2" class="tile">2 <span class="name"></span></div>
+		<div id="tile3" class="tile">3 <span class="name"></span></div>
+		<div id="tile4" class="tile">4 <span class="name"></span></div>
+		<div id="tile5" class="tile">5 <span class="name"></span></div>
+		<div id="tile6" class="tile">6 <span class="name"></span></div>
 	</div>
 
 
@@ -715,6 +745,38 @@
 					<tr><td><input id="mx___41" type="text" style="width:20px" value="1"></input></td<td><input id="mx___42" type="text" style="width:20px" value="1"></input></td<td><input id="mx___43" type="text" style="width:20px" value="1"></input></td><td><input id="mx___44" type="text" style="width:20px" value="1"></input></td></tr>
 				</table>
 				<div id="mx_set4" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+			</td><td>
+				<table>
+					<tr><td><input id="mx_2_11" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_12" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_13" type="text" style="width:20px" value="0"></input></td><td><input id="mx_2_14" type="text" style="width:20px" value="4"></input></td></tr>
+					<tr><td><input id="mx_2_21" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_22" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_23" type="text" style="width:20px" value="0"></input></td><td><input id="mx_2_24" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_2_31" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_32" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_33" type="text" style="width:20px" value="6"></input></td><td><input id="mx_2_34" type="text" style="width:20px" value="2"></input></td></tr>
+					<tr><td><input id="mx_2_41" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_42" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2_43" type="text" style="width:20px" value="5"></input></td><td><input id="mx_2_44" type="text" style="width:20px" value="3"></input></td></tr>
+				</table>
+				<div id="mx_set5" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+				<br/><br/>
+				<table>
+					<tr><td><input id="mx_2__11" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2__12" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2__13" type="text" style="width:20px" value="0"></input></td><td><input id="mx_2__14" type="text" style="width:20px" value="3"></input></td></tr>
+					<tr><td><input id="mx_2__21" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2__22" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2__23" type="text" style="width:20px" value="0"></input></td><td><input id="mx_2__24" type="text" style="width:20px" value="2"></input></td></tr>
+					<tr><td><input id="mx_2__31" type="text" style="width:20px" value="0"></input></td<td><input id="mx_2__32" type="text" style="width:20px" value="5"></input></td<td><input id="mx_2__33" type="text" style="width:20px" value="1"></input></td><td><input id="mx_2__34" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_2__41" type="text" style="width:20px" value="6"></input></td<td><input id="mx_2__42" type="text" style="width:20px" value="4"></input></td<td><input id="mx_2__43" type="text" style="width:20px" value="1"></input></td><td><input id="mx_2__44" type="text" style="width:20px" value="1"></input></td></tr>
+				</table>
+				<div id="mx_set6" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+			</td><td>
+				<table>
+					<tr><td><input id="mx_3_11" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3_12" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3_13" type="text" style="width:20px" value="2"></input></td><td><input id="mx_3_14" type="text" style="width:20px" value="2"></input></td></tr>
+					<tr><td><input id="mx_3_21" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3_22" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3_23" type="text" style="width:20px" value="2"></input></td><td><input id="mx_3_24" type="text" style="width:20px" value="2"></input></td></tr>
+					<tr><td><input id="mx_3_31" type="text" style="width:20px" value="6"></input></td<td><input id="mx_3_32" type="text" style="width:20px" value="5"></input></td<td><input id="mx_3_33" type="text" style="width:20px" value="1"></input></td><td><input id="mx_3_34" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_3_41" type="text" style="width:20px" value="4"></input></td<td><input id="mx_3_42" type="text" style="width:20px" value="3"></input></td<td><input id="mx_3_43" type="text" style="width:20px" value="1"></input></td><td><input id="mx_3_44" type="text" style="width:20px" value="1"></input></td></tr>
+				</table>
+				<div id="mx_set7" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
+				<br/><br/>
+				<table>
+					<tr><td><input id="mx_3__11" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__12" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__13" type="text" style="width:20px" value="5"></input></td><td><input id="mx_3__14" type="text" style="width:20px" value="3"></input></td></tr>
+					<tr><td><input id="mx_3__21" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__22" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__23" type="text" style="width:20px" value="1"></input></td><td><input id="mx_3__24" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_3__31" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__32" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__33" type="text" style="width:20px" value="1"></input></td><td><input id="mx_3__34" type="text" style="width:20px" value="1"></input></td></tr>
+					<tr><td><input id="mx_3__41" type="text" style="width:20px" value="0"></input></td<td><input id="mx_3__42" type="text" style="width:20px" value="6"></input></td<td><input id="mx_3__43" type="text" style="width:20px" value="4"></input></td><td><input id="mx_3__44" type="text" style="width:20px" value="2"></input></td></tr>
+				</table>
+				<div id="mx_set8" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Set</div>
 			</td><td width="200px">
 			
 					<div id="volume1" style="margin:20px;"></div>
@@ -785,6 +847,58 @@
 			}
 			socket.emit('set_matrix',win_config);
 		});
+		$('#mx_set5').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx_2_'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
+		$('#mx_set6').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx_2__'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
+		$('#mx_set7').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx_3_'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
+		$('#mx_set8').click(function(){
+					
+			var win_config = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+			
+			for (var x of [1,2,3,4])
+			{
+				for (var y of [1,2,3,4])
+				{
+					win_config[x-1][y-1]= $('#mx_3__'+x+''+y).val();
+				}
+			}
+			socket.emit('set_matrix',win_config);
+		});
 		
 		$("#clockpos").on('change keyup', function () {
 			socket.emit('ctrl','clockpos',this.value);
@@ -816,13 +930,12 @@
 		$( "#volume5" ).on( "slidechange", function( event, ui ) {socket.emit('volume',5,$('#volume5').slider( "option", "value" ));});
 		$( "#volume6" ).on( "slidechange", function( event, ui ) {socket.emit('volume',6,$('#volume6').slider( "option", "value" ));});
 		
-		$('#stream_desc1').on('change keyup', function () {socket.emit('stream_desc',1,this.value);});	
-		$('#stream_desc2').on('change keyup', function () {socket.emit('stream_desc',2,this.value);});	
-		$('#stream_desc3').on('change keyup', function () {socket.emit('stream_desc',3,this.value);});	
-		$('#stream_desc4').on('change keyup', function () {socket.emit('stream_desc',4,this.value);});	
-		$('#stream_desc5').on('change keyup', function () {socket.emit('stream_desc',5,this.value);});	
-		$('#stream_desc6').on('change keyup', function () {socket.emit('stream_desc',6,this.value);});	
-		
+		$('#stream_desc1').on('change keyup', function () {socket.emit('stream_desc',1,this.value);$('#tile1').find('.name').html(this.value);});	
+		$('#stream_desc2').on('change keyup', function () {socket.emit('stream_desc',2,this.value);$('#tile2').find('.name').html(this.value);});	
+		$('#stream_desc3').on('change keyup', function () {socket.emit('stream_desc',3,this.value);$('#tile3').find('.name').html(this.value);});	
+		$('#stream_desc4').on('change keyup', function () {socket.emit('stream_desc',4,this.value);$('#tile4').find('.name').html(this.value);});	
+		$('#stream_desc5').on('change keyup', function () {socket.emit('stream_desc',5,this.value);$('#tile5').find('.name').html(this.value);});	
+		$('#stream_desc6').on('change keyup', function () {socket.emit('stream_desc',6,this.value);$('#tile6').find('.name').html(this.value);});	
 		
 		$("#rot_1").on('change keyup', function () {
 			socket.emit('slot_set',1,$('#drop1').val(),this.value);
@@ -969,11 +1082,6 @@
 		document.getElementById("pic5").src = image.src;
 		document.getElementById("pic6").src = image.src;
 
-var url = 'https://www.facebook.com/seb.greenbus/videos/2336248033266440/';
-
-$.getJSON('https://www.facebook.com/plugins/video/oembed.json/?url='+url+'&format=json', function(data) {
-console.log(data);
-});
 </script>
 
 <br/>
@@ -984,7 +1092,6 @@ console.log(data);
 <br/>
 &lt;img align="top" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" height="25"/&gt; seb.greenbus
 
-<div id="fb-root"></div> <script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.9"; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><div class="fb-video" data-href="https://www.facebook.com/seb.greenbus/videos/2336248033266440/"><blockquote cite="https://www.facebook.com/seb.greenbus/videos/2336248033266440/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/seb.greenbus/videos/2336248033266440/"></a><p>Chernobyl New "Safe" Confinement</p>Posted by <a href="#" role="button">Sebastian Green</a> on Sunday, July 16, 2017</blockquote></div>
 
 </body></html>
 
