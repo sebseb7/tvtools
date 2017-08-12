@@ -1,20 +1,33 @@
-//const service = require ("os-service");
-//const fs = require('fs');
-/*
-var options = {
-    displayName: "obs-server",
-};
-service.add ("my-service", options, function(error) {
-    if (error)
-        console.log(error);
-});
-*/
 
-//var logStream = fs.createWriteStream (process.argv[1] + ".log");
+const service = require ("os-service");
+const fs = require('fs');
 
-//service.run (logStream, function () {
-//	service.stop (0);
-//});
+if (process.argv[2] == "--add") {
+	var options = {
+		displayName: "obs-server",
+		programArgs: ["--run"]
+	};
+	service.add ("obs-ws-service", options, function(error) {
+		if (error)
+			console.log(error);
+	});
+	exit;
+} else if (process.argv[2] == "--remove") {
+	service.remove ("obs-ws-service", function(error){ 
+	if (error)
+		console.trace(error);
+	});
+	exit;
+} else if (process.argv[2] == "--run") {
+	var logStream = fs.createWriteStream (process.argv[1] + ".log");
+
+	service.run (logStream, function () {
+		service.stop (0);
+	});
+}
+
+
+
 
 var midi = require('midi');
 var http = require('http');
