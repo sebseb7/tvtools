@@ -45,7 +45,7 @@ var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0]];
 var obs_config = {
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
 					'ticker2text':'<img align="top" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" height="25"/> seb.greenbus',
-					'ticker3text':'',
+					'ticker3text':'<img align="top" src="https://cdn1.iconfinder.com/data/icons/logotypes/32/youtube-512.png" height="25"/> /c/sebGreen',
 					'ticker4text':'',
 					'banner1text':'',
 					'banner1rtext':'',
@@ -55,16 +55,16 @@ var obs_config = {
 					'clockpos':960,
 					'cube1':'in',
 					'ticker1':'out',
-					'stream1_url':'https://www.periscope.tv/w/1eaKbmeQYXZxX',
+					'stream1_url':'https://www.youtube.com/watch?v=m_ePKaRde2I',
 					'stream1_desc':'',
 					'stream1_state':'',
-					'stream2_url':'https://www.youtube.com/watch?v=iZF9TvgsKyc',
+					'stream2_url':'https://www.youtube.com/watch?v=LJD57Dr2k54',
 					'stream2_desc':'',
 					'stream2_state':'',
-					'stream3_url':'https://www.periscope.tv/w/1rmGPqpYvVdJN',
+					'stream3_url':'https://www.pscp.tv/w/1lPKqwAzMpeJb',
 					'stream3_desc':'',
 					'stream3_state':'',
-					'stream4_url':'https://www.periscope.tv/w/1mrGmmzEBoDGy',
+					'stream4_url':'https://www.pscp.tv/w/1rmxPqDpXEMKN?q=seattle',
 					'stream4_desc':'',
 					'stream4_state':'',
 					'stream5_url':'https://www.youtube.com/watch?v=1aGuKz2bc58',
@@ -122,7 +122,7 @@ var output = new midi.output();
 
 console.log(input.getPortCount());
 console.log(output.getPortCount());
-input.openPort(1);
+input.openPort(0);
 output.openPort(1);
 
 function update_leds()
@@ -193,10 +193,10 @@ function win_get_x(nr)
 	{
 		for (var y of [0,1,2,3])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1280/4*y;
+			if(obs_config.win_config[x][y]==nr) return 1920/4*y;
 		}
 	}
-	return 1280;
+	return 1920;
 }
 function win_get_xMax(nr)
 {
@@ -204,10 +204,10 @@ function win_get_xMax(nr)
 	{
 		for (var y of [3,2,1,0])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1280/4*(y+1);
+			if(obs_config.win_config[x][y]==nr) return 1920/4*(y+1);
 		}
 	}
-	return 1280+(1280/4);
+	return 1920+(1920/4);
 }
 function win_get_y(nr)
 {
@@ -215,10 +215,10 @@ function win_get_y(nr)
 	{
 		for (var y of [0,1,2,3])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 720/4*x;
+			if(obs_config.win_config[x][y]==nr) return 1080/4*x;
 		}
 	}
-	return 720;
+	return 1080;
 }
 function win_get_yMax(nr)
 {
@@ -226,10 +226,10 @@ function win_get_yMax(nr)
 	{
 		for (var y of [3,2,1,0])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 720/4*(x+1);
+			if(obs_config.win_config[x][y]==nr) return 1080/4*(x+1);
 		}
 	}
-	return 720+(720/4);
+	return 1080+(1080/4);
 }
 
 function set_win_active(nr)
@@ -268,7 +268,7 @@ function update_stream_url(item,value)
 
 
 	console.log('update stream:'+item+':'+value);
-	var ls = spawn('streamlink', [value, '360p,480p,720p,best','--hls-live-edge','6','--ringbuffer-size','32M','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
+	var ls = spawn('streamlink', [value, '480p,720p,best','--hls-segment-threads','10','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
 
 	obs_config['stream'+item+'_state']='L';
 	io.sockets.emit('stream_state',item,'L');
@@ -715,3 +715,18 @@ io.sockets.on('connection', function (socket) {
 
 
 server.listen(8080);
+
+
+
+var http = require('http');
+
+var server = http.createServer(function(req, res) {
+
+	console.log('reg:'+req.url);
+	res.writeHead(301, {
+		'Location': 'https://video-frt3-1.xx.fbcdn.net/hvideo-atn2/v/r5hml1VWGxgBXNXy2P3Bm/live-dash/dash-abr4/10213908927976723.mpd?_nc_rl=AfC1vZFzKj1xq85C&oh=fe4a85422abc0e195c02a2db6d382af1&oe=599CBE20'
+	});
+	res.end();
+});
+
+server.listen(8081);
