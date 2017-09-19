@@ -100,7 +100,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 
-server.listen(8082);
+server.listen(8082,'127.0.0.1');
 
 //			if(/^win/.test(process.platform))
 //				spawn("taskkill", ["/pid", ls.pid, '/f', '/t'])
