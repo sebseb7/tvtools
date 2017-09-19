@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<style>
+		</style>
+		<script src="http://localhost:8082/socket.io/socket.io.js"></script>
+		<script>
+			var socket = io.connect('http://localhost:8082');
+
+			var lastsizes = [];
+			var lasttimes = [];
+			var lastbitrate = [];
+
+
+			socket.on('good', function(){
+			});
+			socket.on('stat', function(slot,data){
+				var lastsize=lastsizes[slot];
+				var lasttime=lasttimes[slot];
+				var currsize;
+				var currtime;
+
+				for (var i of (String.fromCharCode.apply(null, new Uint8Array(data))).split("\n")) {
+					var fields = i.split('=');
+
+					if(fields[0]=='total_size')
+					{
+						lastsizes[slot]=fields[1];
+						currsize = fields[1];
+					}
+					if(fields[0]=='out_time_ms')
+					{
+						lasttimes[slot]=fields[1];
+						currtime = fields[1];
+					}
+
+				}
+
+				var currbitrate = (lastsize-currsize) / (lasttime-currtime)*1000 * 8; 
+				if(lastbitrate[slot])
+				{
+					lastbitrate[slot]=lastbitrate[slot]*0.95+currbitrate*0.05;
+				}else{
+					lastbitrate[slot]=currbitrate;
+				}
+
+				$("#bitrate"+slot).val(lastbitrate[slot]);
+			});
+
+		</script>
+	</head>
+
+	<body>
+
+		<table>
+			<tr>
+				<td><input type="text" style="width:100px" id="src0" value="lq"/></td>
+				<td><input type="text" style="width:300px" id="tar0" value="rtmp://de.pscp.tv:80/x/"/></td>
+				<td><input type="text" style="width:100px" id="bitrate0"/></td>
+				<td><button id="start0" class="ui-button ui-widget ui-corner-all">Start</button></td>
+				<td><button id="stop0" class="ui-button ui-widget ui-corner-all">Stop</button></td>
+			</tr>
+			<tr>
+				<td><input type="text" style="width:100px" id="src1" value="ingest"/></td>
+				<td><input type="text" style="width:300px" id="tar1" value="rtmp://a.rtmp.youtube.com/live2/"/></td>
+				<td><input type="text" style="width:100px" id="bitrate1"/></td>
+				<td><button id="start1" class="ui-button ui-widget ui-corner-all">Start</button></td>
+				<td><button id="stop1" class="ui-button ui-widget ui-corner-all">Stop</button></td>
+			</tr>
+			<tr>
+				<td><input type="text" style="width:100px" id="src2" value="ingest"/></td>
+				<td><input type="text" style="width:300px" id="tar2" value="rtmp://live-api-a.facebook.com:80/rtmp/"/></td>
+				<td><input type="text" style="width:100px" id="bitrate2"/></td>
+				<td><button id="start2" class="ui-button ui-widget ui-corner-all">Start</button></td>
+				<td><button id="stop2" class="ui-button ui-widget ui-corner-all">Stop</button></td>
+			</tr>
+			<tr>
+				<td><input type="text" style="width:100px" id="src3" value="ingest"/></td>
+				<td><input type="text" style="width:300px" id="tar3" value=""/></td>
+				<td><input type="text" style="width:100px" id="bitrate3"/></td>
+				<td><button id="start3" class="ui-button ui-widget ui-corner-all">Start</button></td>
+				<td><button id="stop3" class="ui-button ui-widget ui-corner-all">Stop</button></td>
+			</tr>
+			<tr>
+				<td><input type="text" style="width:100px" id="src4" value="ingest"/></td>
+				<td><input type="text" style="width:300px" id="tar4" value=""/></td>
+				<td><input type="text" style="width:100px" id="bitrate4"/></td>
+				<td><button id="start4" class="ui-button ui-widget ui-corner-all">Start</button></td>
+				<td><button id="stop4" class="ui-button ui-widget ui-corner-all">Stop</button></td>
+			</tr>
+		</table>
+		<script>
+			$( "#start0" ).click(function() {
+				socket.emit('start',0,$("#src0").val(),$("#tar0").val());
+			});
+			$( "#stop0" ).click(function() {
+				socket.emit('stop',0);
+			});
+			$( "#start1" ).click(function() {
+				socket.emit('start',1,$("#src1").val(),$("#tar1").val());
+			});
+			$( "#stop1" ).click(function() {
+				socket.emit('stop',1);
+			});
+			$( "#start2" ).click(function() {
+				socket.emit('start',2,$("#src2").val(),$("#tar2").val());
+			});
+			$( "#stop2" ).click(function() {
+				socket.emit('stop',2);
+			});
+			$( "#start3" ).click(function() {
+				socket.emit('start',3,$("#src3").val(),$("#tar3").val());
+			});
+			$( "#stop3" ).click(function() {
+				socket.emit('stop',3);
+			});
+			$( "#start4" ).click(function() {
+				socket.emit('start',4,$("#src4").val(),$("#tar4").val());
+			});
+			$( "#stop4" ).click(function() {
+				socket.emit('stop',4);
+			});
+		</script>
+	</body>
+</html>
+
