@@ -8,13 +8,17 @@
 		</style>
 		<script src="http://localhost:8082/socket.io/socket.io.js"></script>
 		<script>
-			var socket = io.connect('http://localhost:8082');
+			var socket = io();
 
 			var lastsizes = [];
 			var lasttimes = [];
 			var lastbitrate = [];
 
 
+			socket.on('conf', function(slot,tar,src){
+				$("#src"+slot).val(src);
+				$("#tar"+slot).val(tar);
+			});
 			socket.on('good', function(){
 			});
 			socket.on('stat', function(slot,data){
@@ -57,35 +61,35 @@
 
 		<table>
 			<tr>
-				<td><input type="text" style="width:100px" id="src0" value="lq"/></td>
-				<td><input type="text" style="width:300px" id="tar0" value="rtmp://de.pscp.tv:80/x/"/></td>
+				<td><input type="text" style="width:100px" id="src0" value=""/></td>
+				<td><input type="text" style="width:300px" id="tar0" value=""/></td>
 				<td><input type="text" style="width:100px" id="bitrate0"/></td>
 				<td><button id="start0" class="ui-button ui-widget ui-corner-all">Start</button></td>
 				<td><button id="stop0" class="ui-button ui-widget ui-corner-all">Stop</button></td>
 			</tr>
 			<tr>
-				<td><input type="text" style="width:100px" id="src1" value="ingest"/></td>
-				<td><input type="text" style="width:300px" id="tar1" value="rtmp://a.rtmp.youtube.com/live2/"/></td>
+				<td><input type="text" style="width:100px" id="src1" value=""/></td>
+				<td><input type="text" style="width:300px" id="tar1" value=""/></td>
 				<td><input type="text" style="width:100px" id="bitrate1"/></td>
 				<td><button id="start1" class="ui-button ui-widget ui-corner-all">Start</button></td>
 				<td><button id="stop1" class="ui-button ui-widget ui-corner-all">Stop</button></td>
 			</tr>
 			<tr>
-				<td><input type="text" style="width:100px" id="src2" value="ingest"/></td>
-				<td><input type="text" style="width:300px" id="tar2" value="rtmp://live-api-a.facebook.com:80/rtmp/"/></td>
+				<td><input type="text" style="width:100px" id="src2" value=""/></td>
+				<td><input type="text" style="width:300px" id="tar2" value=""/></td>
 				<td><input type="text" style="width:100px" id="bitrate2"/></td>
 				<td><button id="start2" class="ui-button ui-widget ui-corner-all">Start</button></td>
 				<td><button id="stop2" class="ui-button ui-widget ui-corner-all">Stop</button></td>
 			</tr>
 			<tr>
-				<td><input type="text" style="width:100px" id="src3" value="ingest"/></td>
+				<td><input type="text" style="width:100px" id="src3" value=""/></td>
 				<td><input type="text" style="width:300px" id="tar3" value=""/></td>
 				<td><input type="text" style="width:100px" id="bitrate3"/></td>
 				<td><button id="start3" class="ui-button ui-widget ui-corner-all">Start</button></td>
 				<td><button id="stop3" class="ui-button ui-widget ui-corner-all">Stop</button></td>
 			</tr>
 			<tr>
-				<td><input type="text" style="width:100px" id="src4" value="ingest"/></td>
+				<td><input type="text" style="width:100px" id="src4" value=""/></td>
 				<td><input type="text" style="width:300px" id="tar4" value=""/></td>
 				<td><input type="text" style="width:100px" id="bitrate4"/></td>
 				<td><button id="start4" class="ui-button ui-widget ui-corner-all">Start</button></td>
@@ -126,4 +130,5 @@
 		</script>
 	</body>
 </html>
+
 
