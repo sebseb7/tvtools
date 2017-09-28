@@ -457,6 +457,10 @@
 			$('#tile'+item).find('.name').html(value);
 		});
 		
+		socket.on('resolver_answer', function(value){
+			$('#resolver_answer').val(String.fromCharCode.apply(null, new Uint8Array(value)));
+		});
+		
 		
 
 		socket.on('stream_url', function(item,value){
@@ -529,6 +533,9 @@
 			else if(item == 'clock1live'){
 				if(value == 'on') clock1_live()
 				else clock1_nolive();
+			}
+			else if(item == 'timezone'){
+				$("select#timezone option").each(function() { this.selected = (this.text == value); });
 			}
 			else if(item == 'cube1'){
 				if(value == 'in') cube1_in()
@@ -621,6 +628,16 @@
 		<div id="button_nolive" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">NO LIVE</div>
 		<div id="button_cubein" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Cube IN</div>
 		<div id="button_cubeout" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Cube Out</div>
+		<select id="timezone">
+			<option value="none">local</option>
+			<option value="EDT">EDT</option>
+			<option value="CDT">CDT</option>
+			<option value="PDT">PDT</option>
+			<option value="PST">PST</option>
+		</select>
+		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="resolver_url"></input></div>
+		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="resolver_answer"></input></div>
+		<div id="button_resolver" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">R</div>
 	</div>
 	<div style="clear:both;">
 		<div style="float:left;margin:10px;padding:5px;">Banner1</div>
@@ -955,6 +972,10 @@
 		$("#rot_6").on('change keyup', function () {
 			socket.emit('slot_set',6,$('#drop6').val(),this.value);
 		});	
+		
+		$('#timezone').change(function(){
+			socket.emit('ctrl','timezone',this.value);
+		});
 
 
 
@@ -1081,6 +1102,10 @@
 		document.getElementById("pic4").src = image.src;
 		document.getElementById("pic5").src = image.src;
 		document.getElementById("pic6").src = image.src;
+		
+		$('#button_resolver').click(function(){
+			socket.emit('resolve_url',$('#resolver_url').val());
+		});
 
 </script>
 

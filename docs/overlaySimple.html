@@ -303,6 +303,8 @@
 
 </style>
 	<script>
+	var glob_timezone = 'none';
+
 	function getTimeRemaining(endtime) 
 	{
 		var t = (endtime.getTime()/1000) - (new Date()).getTime()/1000 ;
@@ -351,9 +353,24 @@ initializeClock('clockdiv', deadline);
 
 
 function startTime() {
-	var today = new Date(new Date().getTime() - 9*60*60*1000);
+
+	var tzdiff=0;
+
+	if(glob_timezone=='PDT') tzdiff = 9;
+	if(glob_timezone=='PST') tzdiff = 8;
+	if(glob_timezone=='CDT') tzdiff = 7;
+	if(glob_timezone=='EDT') tzdiff = 6;
+
+
+	var today = new Date(new Date().getTime() - tzdiff*60*60*1000);
 	var h = today.getHours();
-	if(h > 12) h -=12;
+	if(glob_timezone == 'none')
+	{
+	}
+	else
+	{
+		if(h > 12) h -=12;
+	}
 	var m = today.getMinutes();
 	var s = today.getSeconds();
 	var d = today.getDate();
@@ -459,6 +476,18 @@ socket.on('ctrl', function(item,value){
 		if(value == 'on') clock1_live()
 		else clock1_nolive();
 		}
+		else if(item == 'timezone'){
+
+			glob_timezone = value;
+			if(value == 'none')
+			{
+				$("span#timezonetext").text('LIVE');
+			}
+			else
+			{
+				$("span#timezonetext").text(value);
+			}
+		}
 		else if(item == 'cube1'){
 		if(value == 'in') cube1_in()
 		else cube1_out();
@@ -503,7 +532,7 @@ function loaded() {
 <span style="color:rgb(33,255,33)">S<span style="font-size:0.6em">eb</span>G<span style="font-size:0.6em">reen</span></span> 
 </div>
 <div style="padding-top:2px;margin-left:6px;float:left;color:white;font-size:10px;line-height:9px">
-<span style="font-weight:bold;font-size:11px;">PDT</span><br/>
+<span style="font-weight:bold;font-size:11px;" id="timezonetext"></span><br/>
 <span style="color:white;font-size:10px;line-height:2px" id="txt2"></span>
 </div>
 <div style="padding-top:1px;margin-left:6px;float:left">	

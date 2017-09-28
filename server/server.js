@@ -51,6 +51,7 @@ var obs_config = {
 					'banner1rtext':'',
 					'banner1':'out',
 					'clock1live':'off',
+					'timezone':'none',
 					'clock1':'in',
 					'clockpos':960,
 					'cube1':'in',
@@ -254,6 +255,28 @@ function set_win_active(nr)
 	io.sockets.emit('zoom_slot',nr);
 }
 
+function resolve_url(value)
+{
+	console.log('resolve:'+value);
+	var ls = spawn('youtube-dl', ['-g',value],{shell: false});
+
+	ls.stdout.on('data', (data) => {
+		console.log('stdout: '+data);
+		io.sockets.emit('resolver_answer',data);
+		
+	});
+
+	ls.stderr.on('data', (data) => {
+		console.log('stderr: '+data);
+	});
+
+	ls.on('close', (code) => {
+		console.log(`child process exited with code ${code}`);
+	});
+	ls.on('error', (code,text) => {
+		console.log(`child process exited with error ${code} ${text}`);
+	});
+}
 function update_stream_url(item,value)
 {
 	if(obs_config['stream'+item+'_state']!=='')
@@ -566,6 +589,8 @@ io.sockets.on('connection', function (socket) {
 		console.log(err);
 	});
 	
+	socket.emit('conn');
+	
 	socket.emit('ctrl','ticker1text',obs_config.ticker1text);
 	socket.emit('ctrl','ticker2text',obs_config.ticker2text);
 	socket.emit('ctrl','ticker3text',obs_config.ticker3text);
@@ -574,6 +599,7 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('ctrl','banner1rtext',obs_config.banner1rtext);
 	socket.emit('ctrl','banner1',obs_config.banner1);
 	socket.emit('ctrl','clock1live',obs_config.clock1live);
+	socket.emit('ctrl','timezone',obs_config.timezone);
 	socket.emit('ctrl','clock1',obs_config.clock1);
 	socket.emit('ctrl','clockpos',obs_config.clockpos);
 	socket.emit('ctrl','cube1',obs_config.cube1);
@@ -648,6 +674,11 @@ io.sockets.on('connection', function (socket) {
 			}
 			set_win_active(activeSlot);
 	});
+	
+	socket.on('card', function(item,value){
+		console.log(item);
+		socket.broadcast.emit('card',item,value);
+	});
 
 	socket.on('ctrl', function(item,value){
 		socket.broadcast.emit('ctrl',item,value);
@@ -665,6 +696,8 @@ io.sockets.on('connection', function (socket) {
 			obs_config.banner1rtext=value
 		else if(item == 'banner1')
 			obs_config.banner1=value
+		else if(item == 'timezone')
+			obs_config.timezone=value
 		else if(item == 'clockpos')
 			obs_config.clockpos=value
 		else if(item == 'clock1live')
@@ -711,6 +744,11 @@ io.sockets.on('connection', function (socket) {
 		else if(item == '6')
 			obs_config.stream6_url=value;
 	});
+	socket.on('resolve_url', function(value){
+
+		resolve_url(value);
+
+	});
 });
 
 
@@ -719,14 +757,14 @@ server.listen(8080);
 
 
 var http = require('http');
+var path = require('path');
 
 var server = http.createServer(function(req, res) {
-
-	console.log('reg:'+req.url);
-	res.writeHead(301, {
-		'Location': 'https://video-frt3-1.xx.fbcdn.net/hvideo-atn2/v/r5hml1VWGxgBXNXy2P3Bm/live-dash/dash-abr4/10213908927976723.mpd?_nc_rl=AfC1vZFzKj1xq85C&oh=fe4a85422abc0e195c02a2db6d382af1&oe=599CBE20'
+	res.writeHead(200, { 
+		'content-type': 'text/html',
+		'Access-Control-Allow-Origin': '*.twitter.com'
 	});
-	res.end();
+	fs.createReadStream(path.resolve(__dirname+'/../docs/cards.html')).pipe(res);
 });
 
 server.listen(8081);
