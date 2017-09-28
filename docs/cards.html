@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+		<style>
+			.output {
+				width:1280px;
+				height:720px;
+				background:blue;
+			}
+			.textinput1 {
+				width:280px;
+			}
+			.card {
+				background:red;
+				position:absolute;
+				width:128px;
+				height:72px;
+			}
+			.inner {
+				background:green;
+			}
+			.hidden {
+				visibility: hidden;
+			}
+		</style>
+		<script>
+			var socket = io.connect('http://localhost:8080');
+			var cardid = Math.round((new Date).getTime());
+			var active_card;
+				
+			function add_card(id) {
+
+				$( "#output" ).append($( "<div id='card_"+id+"' class='card hidden'><div class='inner'>"+(id)+"</div></div>" ));
+				
+				
+				$( "#card_"+id).css( { left:100, top: 100 } );
+			}
+
+			function set_active_card(id){
+
+				active_card = id;
+				$("#active_id").text(id);
+				$("#cardtext").val($("#"+active_card+" div").html());
+
+			}
+
+			socket.on('card', function(item,value){
+		
+				if(item == 'add')
+					add_card(value)
+				else if(item == 'move')
+					$( "#card_"+value[0]).css( { left:value[1], top: value[2] } )
+				else if(item == 'resize')
+					$( "#card_"+value[0]).css( { width:value[1], height: value[2] } )
+				else if(item == 'content')
+					$("#"+value[0]+" div.inner").html(value[1])
+				else if(item == 'show')
+					$("#"+value).removeClass('hidden');
+				else if(item == 'oemb'){
+					$.getJSON( value[1], {format: "json"}).done(function( data ) {
+						data.html = data.html.replace(/\"\/\//g,'"http://');
+						$("#"+value[0]+" div.inner").html($(data.html));
+					});
+				}
+
+			});
+
+		</script>
+	</head>
+
+	<body>
+
+		<div id="output" class="output">
+		</div>
+
+
+		<button id="addCard" class="ui-button ui-widget ui-corner-all">Add</button>
+		
+
+		<div>Active Card: <span id="active_id"/></div>
+		
+		<button id="delActiveCard" class="ui-button ui-widget ui-corner-all">Delete Active Card</button>
+		<button id="showActiveCard" class="ui-button ui-widget ui-corner-all">Show Active Card</button>
+	
+		<input type="text" id="cardtext" class="textinput1"/>
+		<button id="updateText" class="ui-button ui-widget ui-corner-all">Set</button>
+		<button id="updateTweet" class="ui-button ui-widget ui-corner-all">SetTweet</button>
+
+		<script>
+			$( "#addCard" ).click(function() {
+
+
+				socket.emit('card','add',cardid);
+				
+				add_card(cardid);
+				var id = cardid;
+				
+				$( "#card_"+cardid).draggable();
+				$( "#card_"+cardid).resizable();
+				
+				$( "#card_"+cardid).click(function() {
+				
+					set_active_card(this.id);
+				});
+					
+				
+				$( "#card_"+cardid).on( "drag", function( event, ui ) { 
+			
+					socket.emit('card','move',[id,$("#card_"+id).offset().left,$("#card_"+id).offset().top]);
+				
+				} );	
+				$( "#card_"+cardid).on( "resize", function( event, ui ) { 
+				
+					socket.emit('card','resize',[id,ui.size.width,ui.size.height]);
+				
+				} );	
+				
+				$( "#card_"+cardid).removeClass('hidden');
+
+				cardid++;
+
+			});
+			$( "#delActiveCard" ).click(function() {
+				$("#"+active_card).remove();
+			});
+			$( "#showActiveCard" ).click(function() {
+				socket.emit('card','show',active_card);
+			});
+			$( "#updateText" ).click(function() {
+				if($("#"+active_card)){
+					$("#"+active_card+" div.inner").html($("#cardtext").val());
+					
+					socket.emit('card','content',[active_card,$("#cardtext").val()]);	
+				}
+			});
+			
+			$( "#updateTweet" ).click(function() {
+
+				var oembUrl = "https://publish.twitter.com/oembed?maxwidth=550&url="+$("#cardtext").val();
+					
+				socket.emit('card','oemb',[active_card,oembUrl]);	
+
+				$.getJSON( oembUrl, {format: "json"}).done(function( data ) {
+					data.html = data.html.replace(/\"\/\//g,'"http://');
+					$("#"+active_card+" div.inner").html($(data.html));
+				});
+			});
+
+		</script>
+	</body>
+</html>
+
+
