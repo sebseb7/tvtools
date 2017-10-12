@@ -57,6 +57,7 @@ io.sockets.on('connection', function (socket) {
 		if( slots[slot] )
 		{
 			process.kill(slots[slot].pid);
+			delete slots[slot];
 		}
 		else
 		{
@@ -76,7 +77,9 @@ io.sockets.on('connection', function (socket) {
 		targets[slot]=target;
 		sources[slot]=src;
 
-		slots[slot] = spawn('ffmpeg', ['-progress','-','-v','quiet','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+		//slots[slot] = spawn('ffmpeg', ['-progress','-','-v','quiet','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+		//slots[slot] = spawn('ffmpeg', ['-re','-fflags','+genpts+igndts','-progress','-','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+		slots[slot] = spawn('ffmpeg', ['-progress','-','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
 
 		slots[slot].stdout.on('data', (data) => {
 			io.sockets.emit('stat',slot,data);
@@ -93,6 +96,7 @@ io.sockets.on('connection', function (socket) {
 		});
 		slots[slot].on('error', (code,text) => {
 			console.log(`child process exited with error ${code} ${text}`);
+			delete slots[slot];
 		});
 	});
 	
