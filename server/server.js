@@ -11,13 +11,13 @@ if (process.argv[2] == "--add") {
 		if (error)
 			console.log(error);
 	});
-	exit;
+	process.exit();
 } else if (process.argv[2] == "--remove") {
 	service.remove ("obs-ws-service", function(error){ 
 	if (error)
 		console.trace(error);
 	});
-	exit;
+	process.exit();
 } else if (process.argv[2] == "--run") {
 	var logStream = fs.createWriteStream (process.argv[1] + ".log");
 
@@ -42,6 +42,7 @@ var io = require('socket.io').listen(server);
 var obs = new OBSWebSocket();
 var activeSlot = 1;
 var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0]];
+var player = [];
 var obs_config = {
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
 					'ticker2text':'<img align="top" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" height="25"/> seb.greenbus',
@@ -277,6 +278,35 @@ function resolve_url(value)
 		console.log(`child process exited with error ${code} ${text}`);
 	});
 }
+function resolve_url2(value,slot)
+{
+	console.log('resolve for '+slot+':'+value);
+	var ls = spawn('youtube-dl', ['-g',value],{shell: false});
+
+	var good = 0;
+
+	ls.stdout.on('data', (data) => {
+		console.log('stdout: '+data);
+		var url =String.fromCharCode.apply(null, new Uint8Array(data));
+		
+		if(! good) {
+			player[slot-1][2]=url;
+			io.sockets.emit('player_url',slot,url);
+		}
+		good=1;
+	});
+
+	ls.stderr.on('data', (data) => {
+		console.log('stderr: '+data);
+	});
+
+	ls.on('close', (code) => {
+		console.log(`child process exited with code ${code}`);
+	});
+	ls.on('error', (code,text) => {
+		console.log(`child process exited with error ${code} ${text}`);
+	});
+}
 function update_stream_url(item,value)
 {
 	if(obs_config['stream'+item+'_state']!=='')
@@ -291,7 +321,7 @@ function update_stream_url(item,value)
 
 
 	console.log('update stream:'+item+':'+value);
-	var ls = spawn('streamlink', [value, '480p,720p,best','--hls-segment-threads','10','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
+	var ls = spawn('streamlink', [value, '480p,720p,best','--hls-live-edge','4','--ringbuffer-size','12M','--hls-segment-threads','4','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
 
 	obs_config['stream'+item+'_state']='L';
 	io.sockets.emit('stream_state',item,'L');
@@ -376,7 +406,7 @@ function set_win_pos(nr,scene,source,x,y,w,h,r)
 	obs.getCurrentScene({}).then(data => {
 		data.sources.forEach(source2 => {
 			if (source2.name == source) {
-				//console.log(source2);
+				console.log(source2);
 				if(source2.source_cx != 0)
 				{
 					if(r==0)
@@ -676,8 +706,27 @@ io.sockets.on('connection', function (socket) {
 	});
 	
 	socket.on('card', function(item,value){
-		console.log(item);
 		socket.broadcast.emit('card',item,value);
+	});
+	socket.on('player_stat', function(a,b,c,d,e,f,g){
+		socket.broadcast.emit('player_stat',a,b,c,d,e,f,g);
+	});
+	socket.on('player_vol', function(a,b){
+		socket.broadcast.emit('player_vol',a,b);
+	});
+	socket.on('player', function(slot,desc,url){
+		console.log('player '+slot+' '+desc);
+		resolve_url2(url,slot);
+		player[slot-1]=[desc,url,''];
+	});
+	
+	socket.on('player_getUrl', function(slot){
+		if(player[slot-1])
+			socket.emit('playurl',player[slot-1][2]);
+	});
+	socket.on('player_desc', function(slot){
+		if(player[slot-1])
+			socket.emit('playdesc',slot,player[slot-1][0],player[slot-1][1],player[slot-1][2]);
 	});
 
 	socket.on('ctrl', function(item,value){
@@ -768,3 +817,11 @@ var server = http.createServer(function(req, res) {
 });
 
 server.listen(8081);
+var server2 = http.createServer(function(req, res) {
+	res.writeHead(200, { 
+		'content-type': 'text/html',
+	});
+	fs.createReadStream(path.resolve(__dirname+'/../docs/player.html')).pipe(res);
+});
+
+server2.listen(8083);
