@@ -1,0 +1,12 @@
+#!/bin/sh
+
+while true
+do
+	ffmpeg -y -v quiet -i `find /dev/shm/mytv2/live_src/*.ts | tail -1`  -vf "boxblur=8:1,scale=640:360" -q:v 5 -vsync vfr -vframes 1 -update 1 /dev/shm/img.jpg
+	sleep 4
+	ffmpeg -y -v quiet -i `find /dev/shm/mytv2/live_src/*.ts | tail -1` -i /usr/local/nginx/html/overlay.png -filter_complex "[0:v]scale=1280:720,boxblur=8:1,scale=640:360[zork];[zork][1:v]overlay" -q:v 2 -vsync vfr -update 1 -vframes 1 /dev/shm/img2.jpg
+	sleep 4
+	ffmpeg -y -v quiet -i `find /dev/shm/mytv2/live_src/*.ts | tail -1`  -vf "scale=1280:720" -q:v 5 -vsync vfr -vframes 1 -update 1 /dev/shm/img3.jpg
+	sleep 4
+done
+
