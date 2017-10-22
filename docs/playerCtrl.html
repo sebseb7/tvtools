@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+		<style>
+		</style>
+		<script>
+			
+
+		</script>
+	</head>
+
+	<body>
+
+
+		<table><tr>
+
+			<td><input id="desc1" type="text" style="width:100px"/></td>
+			<td><input id="url1" type="text" style="width:150px"/></td>
+			<td><input id="mpd1" type="text" style="width:150px"/></td>
+			<td><button id="res1" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info1" style="width:500px"></td>
+			<td><div id="vol1" style="width:200px"></div></td>
+
+		</tr><tr>
+
+			<td><input id="desc2" type="text" style="width:100px"/></td>
+			<td><input id="url2" type="text" style="width:150px"/></td>
+			<td><input id="mpd2" type="text" style="width:150px"/></td>
+			<td><button id="res2" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info2" style="width:500px"></td>
+			<td><div id="vol2" style="width:200px"></div></td>
+		</tr><tr>
+
+			<td><input id="desc3" type="text" style="width:100px"/></td>
+			<td><input id="url3" type="text" style="width:150px"/></td>
+			<td><input id="mpd3" type="text" style="width:150px"/></td>
+			<td><button id="res3" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info3" style="width:500px"></td>
+			<td><div id="vol3" style="width:200px"></div></td>
+		</tr><tr>
+
+			<td><input id="desc4" type="text" style="width:100px"/></td>
+			<td><input id="url4" type="text" style="width:150px"/></td>
+			<td><input id="mpd4" type="text" style="width:150px"/></td>
+			<td><button id="res4" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info4" style="width:500px"></td>
+			<td><div id="vol4" style="width:200px"></div></td>
+		</tr><tr>
+
+			<td><input id="desc5" type="text" style="width:100px"/></td>
+			<td><input id="url5" type="text" style="width:150px"/></td>
+			<td><input id="mpd5" type="text" style="width:150px"/></td>
+			<td><button id="res5" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info5" style="width:500px"></td>
+			<td><div id="vol5" style="width:200px"></div></td>
+		</tr><tr>
+
+			<td><input id="desc6" type="text" style="width:100px"/></td>
+			<td><input id="url6" type="text" style="width:150px"/></td>
+			<td><input id="mpd6" type="text" style="width:150px"/></td>
+			<td><button id="res6" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info6" style="width:500px"></td>
+			<td><div id="vol6" style="width:200px"></div></td>
+		</tr><tr>
+
+			<td><input id="desc7" type="text" style="width:100px"/></td>
+			<td><input id="url7" type="text" style="width:150px"/></td>
+			<td><input id="mpd7" type="text" style="width:150px"/></td>
+			<td><button id="res7" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info7" style="width:500px"></td>
+			<td><div id="vol7" style="width:200px"></div></td>
+		</tr><tr>
+
+			<td><input id="desc8" type="text" style="width:100px"/></td>
+			<td><input id="url8" type="text" style="width:150px"/></td>
+			<td><input id="mpd8" type="text" style="width:150px"/></td>
+			<td><button id="res8" class="ui-button ui-widget ui-corner-all">Res</button></td>
+			<td id="info8" style="width:500px"></td>
+			<td><div id="vol8" style="width:200px"></div></td>
+
+		</tr></table>
+
+
+
+
+
+
+		<script>
+			var socket = io.connect('http://localhost:8080');
+			socket.on('conn', function () {
+				socket.emit('player_desc',1);
+				socket.emit('player_desc',2);
+				socket.emit('player_desc',3);
+				socket.emit('player_desc',4);
+				socket.emit('player_desc',5);
+				socket.emit('player_desc',6);
+				socket.emit('player_desc',7);
+				socket.emit('player_desc',8);
+			});
+			socket.on('player_url', function (slot,url) {
+				$("#mpd"+slot).val(url);
+			});
+			socket.on('playdesc', function (slot,desc,url,mpd) {
+				$("#desc"+slot).val(desc);
+				$("#url"+slot).val(url);
+				$("#mpd"+slot).val(mpd);
+			});
+			socket.on('player_stat', function (slot,vol,vol2,buflen,time,rate,vol3) {
+				$("#info"+slot).text('v:'+Math.round(vol)+' v2:'+Math.round(vol2)+' v3:'+Math.round(vol3*100)+' rate:'+rate+' buf:'+Math.round(buflen,1)+' time:'+Math.round(time));
+			});
+			
+			
+			$( function() {
+				$( "#vol1" ).slider();
+				$( "#vol2" ).slider();
+				$( "#vol3" ).slider();
+				$( "#vol4" ).slider();
+				$( "#vol5" ).slider();
+				$( "#vol6" ).slider();
+				$( "#vol7" ).slider();
+				$( "#vol8" ).slider();
+			} );
+			$( "#res1" ).click(function() {
+				$("#mpd1").val('');
+				socket.emit('player',1,$("#desc1").val(),$("#url1").val());
+			});
+			$( "#res2" ).click(function() {
+				$("#mpd2").val('');
+				socket.emit('player',2,$("#desc2").val(),$("#url2").val());
+			});
+			$( "#res3" ).click(function() {
+				$("#mpd3").val('');
+				socket.emit('player',3,$("#desc3").val(),$("#url3").val());
+			});
+			$( "#res4" ).click(function() {
+				$("#mpd4").val('');
+				socket.emit('player',4,$("#desc4").val(),$("#url4").val());
+			});
+			$( "#res5" ).click(function() {
+				$("#mpd5").val('');
+				socket.emit('player',5,$("#desc5").val(),$("#url5").val());
+			});
+			$( "#res6" ).click(function() {
+				$("#mpd6").val('');
+				socket.emit('player',6,$("#desc6").val(),$("#url6").val());
+			});
+			$( "#res7" ).click(function() {
+				$("#mpd7").val('');
+				socket.emit('player',7,$("#desc7").val(),$("#url7").val());
+			});
+			$( "#res8" ).click(function() {
+				$("#mpd8").val('');
+				socket.emit('player',8,$("#desc8").val(),$("#url8").val());
+			});
+		
+			$( "#vol1" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',1,$('#vol1').slider( "option", "value" ))});
+			$( "#vol2" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',2,$('#vol2').slider( "option", "value" ))});
+			$( "#vol3" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',3,$('#vol3').slider( "option", "value" ))});
+			$( "#vol4" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',4,$('#vol4').slider( "option", "value" ))});
+			$( "#vol5" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',5,$('#vol5').slider( "option", "value" ))});
+			$( "#vol6" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',6,$('#vol6').slider( "option", "value" ))});
+			$( "#vol7" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',7,$('#vol7').slider( "option", "value" ))});
+			$( "#vol8" ).on( "slidechange", function( event, ui ) {socket.emit('player_vol',8,$('#vol8').slider( "option", "value" ))});
+		</script>
+	</body>
+</html>
+
+

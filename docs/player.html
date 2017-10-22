@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+		<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+		<style>
+			body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }
+		</style>
+		<script>
+			
+
+		</script>
+	</head>
+
+	<body>
+
+		<video id="videoPlayer" style="width:1280px;height:1280px;transform:rotate(0deg);"></video>
+
+		<script>
+			$.urlParam = function(name){
+				var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+				if (results==null){
+					return null;
+				}
+				else{
+					return decodeURI(results[1]) || 0;
+				}
+			}
+				var player = dashjs.MediaPlayer().create();
+				
+				player.getDebug().setLogToBrowserConsole(false);
+
+			var socket = io.connect('http://localhost:8080');
+			socket.on('conn', function () {
+				socket.emit('player_getUrl',$.urlParam('id'));
+			});
+			socket.on('player_vol', function (slot,vol) {
+				if($.urlParam('id') == slot)
+					player.setVolume(vol/100);
+			});
+			socket.on('playurl', function (url) {
+			
+				player.initialize(document.querySelector("#videoPlayer"), url, true);
+				player.setMute(false);
+				player.setVolume(0.01);
+				player.setAutoSwitchQualityFor('video', false);
+				player.setMinAllowedBitrateFor('video', 800000);
+						
+
+				//var ctx = new AudioContext();
+				//var audio = document.getElementById('videoPlayer');
+				//var audioSrc = ctx.createMediaElementSource(audio);
+				//var analyser = ctx.createAnalyser();
+				//audioSrc.connect(analyser);
+
+				var context = new AudioContext();
+				var source = context.createMediaElementSource(document.getElementById('videoPlayer'));
+				var analyser = context.createAnalyser();
+				analyser.fftSize = 32;
+
+				source.connect(analyser);
+				analyser.connect(context.destination);
+			
+				var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+				//player.on(dashjs.MediaPlayer.events['PLAYBACK_PLAYING'],function(){
+				player.on(dashjs.MediaPlayer.events['CAN_PLAY'],function(){
+						var list = player.getBitrateInfoListFor('video');
+						if(list[player.getQualityFor('video')].width < list[player.getQualityFor('video')].height)
+							$('#videoPlayer').css({'transform' : 'rotate(90deg)  translateX(-280px)'})
+						else
+							$('#videoPlayer').css({'transform' : 'rotate(0deg)  translateY(-280px)'})
+				});
+
+				function checkPlayer(){
+					if(! player.isPaused())
+					{
+					
+						var vol = 0;
+						for (let i of frequencyData)
+						{
+							vol+=i;
+						};
+						var vol2 = vol * player.getVolume();	
+				
+						var list = player.getBitrateInfoListFor('video');
+						socket.emit('player_stat',$.urlParam('id'),vol2,vol,player.getBufferLength('video'),player.timeAsUTC(),list[player.getQualityFor('video')].bitrate,player.getVolume());
+					}
+				}
+				
+				function checkPlayer2(){
+
+					if(! player.isPaused())
+					{
+						analyser.getByteFrequencyData(frequencyData);
+					}
+
+
+				}
+
+				setInterval(checkPlayer2, 10);	
+				setInterval(checkPlayer, 500);	
+			});
+
+
+		</script>
+	</body>
+</html>
+
+
