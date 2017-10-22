@@ -35,10 +35,20 @@ const { spawn } = require('child_process');
 var killer = require('child_process').exec;
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
+
 
 app.get('/', function(req, res) {
 	res.sendFile(path.resolve(__dirname+'/../docs/rtmpCtrl.html'));
 });
+app.post('/playlog', function(req, res) {
+	fs.appendFile('/usr/local/nginx/html/playlog.txt','['+req.body.date+'] '+req.body.url+"\r\n" , function (err) {});
+	res.end("yes");
+});
+
 
 var slots = [];
 var targets = [];
@@ -46,61 +56,61 @@ var sources = [];
 
 io.sockets.on('connection', function (socket) {
 
-	console.log('A client is connected!');
-	
-	for(var i in targets)
-	{
+		console.log('A client is connected!');
+
+		for(var i in targets)
+		{
 		socket.emit('conf',i,targets[i],sources[i]);
-	}
-	
-	socket.on('stop', function(slot){
-		if( slots[slot] )
-		{
-			process.kill(slots[slot].pid);
-			delete slots[slot];
-		}
-		else
-		{
-			console.log('nothing there');
-		}
-	});
-
-	socket.on('start', function(slot,src,target){
-		console.log('start'+src+':'+target);
-		
-		if( slots[slot] )
-		{
-			console.log('already there');
-			return;
 		}
 
-		targets[slot]=target;
-		sources[slot]=src;
+		socket.on('stop', function(slot){
+				if( slots[slot] )
+				{
+				process.kill(slots[slot].pid);
+				delete slots[slot];
+				}
+				else
+				{
+				console.log('nothing there');
+				}
+				});
 
-		//slots[slot] = spawn('ffmpeg', ['-progress','-','-v','quiet','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
-		//slots[slot] = spawn('ffmpeg', ['-re','-fflags','+genpts+igndts','-progress','-','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
-		slots[slot] = spawn('ffmpeg', ['-progress','-','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+		socket.on('start', function(slot,src,target){
+				console.log('start'+src+':'+target);
 
-		slots[slot].stdout.on('data', (data) => {
-			io.sockets.emit('stat',slot,data);
+				if( slots[slot] )
+				{
+				console.log('already there');
+				return;
+				}
 
+				targets[slot]=target;
+				sources[slot]=src;
+
+				//slots[slot] = spawn('ffmpeg', ['-progress','-','-v','quiet','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+				//slots[slot] = spawn('ffmpeg', ['-re','-fflags','+genpts+igndts','-progress','-','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+				slots[slot] = spawn('ffmpeg', ['-progress','-','-nostdin','-i','rtmp://127.0.0.1/'+src+'/live live=1','-c','copy','-f','flv',target],{shell: false});
+
+				slots[slot].stdout.on('data', (data) => {
+						io.sockets.emit('stat',slot,data);
+
+						});
+
+				slots[slot].stderr.on('data', (data) => {
+						console.log('stderr: '+data);
+						});
+
+				slots[slot].on('close', (code) => {
+						console.log(`child process exited with code ${code}`);
+						delete slots[slot];
+						});
+				slots[slot].on('error', (code,text) => {
+						console.log(`child process exited with error ${code} ${text}`);
+						delete slots[slot];
+						});
 		});
 
-		slots[slot].stderr.on('data', (data) => {
-			console.log('stderr: '+data);
-		});
-
-		slots[slot].on('close', (code) => {
-			console.log(`child process exited with code ${code}`);
-			delete slots[slot];
-		});
-		slots[slot].on('error', (code,text) => {
-			console.log(`child process exited with error ${code} ${text}`);
-			delete slots[slot];
-		});
-	});
-	
-	socket.emit('good');
+		socket.emit('good');
 });
 
 
