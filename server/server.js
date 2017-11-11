@@ -196,10 +196,10 @@ function win_get_x(nr)
 	{
 		for (var y of [0,1,2,3])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1920/4*y;
+			if(obs_config.win_config[x][y]==nr) return 1280/4*y;
 		}
 	}
-	return 1920;
+	return 1280;
 }
 function win_get_xMax(nr)
 {
@@ -207,10 +207,10 @@ function win_get_xMax(nr)
 	{
 		for (var y of [3,2,1,0])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1920/4*(y+1);
+			if(obs_config.win_config[x][y]==nr) return 1280/4*(y+1);
 		}
 	}
-	return 1920+(1920/4);
+	return 1280+(1280/4);
 }
 function win_get_y(nr)
 {
@@ -218,10 +218,10 @@ function win_get_y(nr)
 	{
 		for (var y of [0,1,2,3])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1080/4*x;
+			if(obs_config.win_config[x][y]==nr) return 720/4*x;
 		}
 	}
-	return 1080;
+	return 720;
 }
 function win_get_yMax(nr)
 {
@@ -229,10 +229,10 @@ function win_get_yMax(nr)
 	{
 		for (var y of [3,2,1,0])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1080/4*(x+1);
+			if(obs_config.win_config[x][y]==nr) return 720/4*(x+1);
 		}
 	}
-	return 1080+(1080/4);
+	return 720+(720/4);
 }
 	
 function playlog(url) {

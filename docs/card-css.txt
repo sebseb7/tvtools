@@ -1,0 +1,4 @@
+body { margin: 0px auto; overflow: hidden; }
+.output { background-color: rgba(0, 0, 0, 0);}
+.card { background-color: rgba(0, 0, 0, 0);}
+.inner { background-color: rgba(0, 0, 0, 0);}
