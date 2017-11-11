@@ -17,7 +17,7 @@
 
 	<body>
 
-		<video id="videoPlayer" style="width:1280px;height:1280px;transform:rotate(0deg);"></video>
+		<video id="videoPlayer" style="width:640px;height:640px;"></video>
 
 		<script>
 			$.urlParam = function(name){
@@ -29,9 +29,10 @@
 					return decodeURI(results[1]) || 0;
 				}
 			}
-				var player = dashjs.MediaPlayer().create();
+			
+			var player = dashjs.MediaPlayer().create();
 				
-				player.getDebug().setLogToBrowserConsole(false);
+			player.getDebug().setLogToBrowserConsole(false);
 
 			var socket = io.connect('http://localhost:8080');
 			socket.on('conn', function () {
@@ -45,9 +46,9 @@
 			
 				player.initialize(document.querySelector("#videoPlayer"), url, true);
 				player.setMute(false);
-				player.setVolume(0.01);
+				player.setVolume(0.001);
 				player.setAutoSwitchQualityFor('video', false);
-				player.setMinAllowedBitrateFor('video', 800000);
+				player.setMaxAllowedBitrateFor('video', 800000);
 						
 
 				//var ctx = new AudioContext();
@@ -70,9 +71,18 @@
 				player.on(dashjs.MediaPlayer.events['CAN_PLAY'],function(){
 						var list = player.getBitrateInfoListFor('video');
 						if(list[player.getQualityFor('video')].width < list[player.getQualityFor('video')].height)
-							$('#videoPlayer').css({'transform' : 'rotate(90deg)  translateX(-280px)'})
+							$('#videoPlayer').css({'transform' : 'rotate(90deg)  translateX(-140px)'})
 						else
-							$('#videoPlayer').css({'transform' : 'rotate(0deg)  translateY(-280px)'})
+							$('#videoPlayer').css({'transform' : 'rotate(0deg)  translateY(-140px)'})
+				});
+				var eventsent = false;
+				player.on(dashjs.MediaPlayer.events['PLAYBACK_PLAYING'],function(){
+					
+					if(! eventsent)
+						socket.emit('playlog',$.urlParam('id'));
+						
+
+					eventsent = true;
 				});
 
 				function checkPlayer(){
