@@ -31,6 +31,7 @@ if (process.argv[2] == "--add") {
 
 var midi = require('midi');
 var http = require('http');
+var querystring = require('querystring');
 var OBSWebSocket = require('obs-websocket-js');
 const { spawn } = require('child_process');
 var killer = require('child_process').exec;
@@ -233,6 +234,33 @@ function win_get_yMax(nr)
 	}
 	return 1080+(1080/4);
 }
+	
+function playlog(url) {
+	
+	const postData = querystring.stringify({
+		'url': url,
+		'date': new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+	});
+	const options = {
+		hostname: '127.0.0.1',
+		port: 8082,
+		path: '/playlog',
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Content-Length': Buffer.byteLength(postData)
+		}
+	};
+
+	const req = http.request(options, (res) => {
+		res.setEncoding('utf8');
+	});
+	req.on('error', function(e) {
+		console.error(e);
+	});
+	req.write(postData);
+	req.end();
+}
 
 function set_win_active(nr)
 {
@@ -321,7 +349,7 @@ function update_stream_url(item,value)
 
 
 	console.log('update stream:'+item+':'+value);
-	var ls = spawn('streamlink', [value, '480p,720p,best','--hls-live-edge','4','--ringbuffer-size','12M','--hls-segment-threads','4','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
+	var ls = spawn('streamlink', [value, '480p,720p,best','--ffmpeg-audio-transcode','aac','--hls-live-edge','4','--ringbuffer-size','12M','--hls-segment-threads','4','--http-no-ssl-verify','--player-external-http','--player-external-http-port','500'+item],{shell: false});
 
 	obs_config['stream'+item+'_state']='L';
 	io.sockets.emit('stream_state',item,'L');
@@ -343,6 +371,10 @@ function update_stream_url(item,value)
 		{
 			obs_config['stream'+item+'_state']='running';
 			io.sockets.emit('stream_state',item,'running');
+		}
+		if(data.toString().match("Opening stream"))
+		{
+			playlog(value);
 		}
 		if(data.toString().match("Could not open stream"))
 		{
@@ -723,6 +755,10 @@ io.sockets.on('connection', function (socket) {
 	socket.on('player_getUrl', function(slot){
 		if(player[slot-1])
 			socket.emit('playurl',player[slot-1][2]);
+	});
+	socket.on('playlog', function(slot){
+		if(player[slot-1])
+			playlog(player[slot-1][1]);
 	});
 	socket.on('player_desc', function(slot){
 		if(player[slot-1])
