@@ -1,30 +1,6 @@
 
-const service = require ("os-service");
+
 const fs = require('fs');
-
-if (process.argv[2] == "--add") {
-	var options = {
-		displayName: "obs-server",
-		programArgs: ["--run"]
-	};
-	service.add ("obs-ws-service", options, function(error) {
-		if (error)
-			console.log(error);
-	});
-	process.exit();
-} else if (process.argv[2] == "--remove") {
-	service.remove ("obs-ws-service", function(error){ 
-	if (error)
-		console.trace(error);
-	});
-	process.exit();
-} else if (process.argv[2] == "--run") {
-	var logStream = fs.createWriteStream (process.argv[1] + ".log");
-
-	service.run (logStream, function () {
-		service.stop (0);
-	});
-}
 
 
 
@@ -42,7 +18,7 @@ var server = http.createServer(function(req, res) {
 var io = require('socket.io').listen(server);
 var obs = new OBSWebSocket();
 var activeSlot = 1;
-var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0]];
+var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0],['player1',0,0],['player2',0,0],['player3',0,0],['player4',0,0],['player5',0,0],['player6',0,0]];
 var player = [];
 var obs_config = {
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
@@ -77,25 +53,25 @@ var obs_config = {
 					'stream6_desc':'',
 					'stream6_state':'',
 					'win_config':[
-						[[0],[0],[0],[4]],
-						[[0],[0],[0],[2]],
-						[[0],[0],[8],[1]],
-						[[7],[6],[5],[3]],
+						[[0],[12],[11],[10]],
+						[[0],[9],[8],[7]],
+						[[0],[6],[5],[4]],
+						[[0],[3],[2],[1]],
 
-						[[0],[0],[8],[4]],
-						[[0],[0],[7],[3]],
-						[[0],[0],[6],[2]],
-						[[0],[0],[5],[1]],
+						[[0],[11],[5],[4]],
+						[[12],[10],[3],[2]],
+						[[9],[8],[1],[1]],
+						[[7],[6],[1],[1]],
 
 						[[0],[0],[2],[2]],
 						[[8],[7],[2],[2]],
 						[[6],[5],[1],[1]],
 						[[4],[3],[1],[1]],
 
-						[[0],[0],[5],[3]],
-						[[0],[0],[4],[2]],
-						[[0],[8],[1],[1]],
-						[[7],[6],[1],[1]],
+						[[7],[5],[2],[2]],
+						[[6],[4],[2],[2]],
+						[[3],[3],[1],[1]],
+						[[3],[3],[1],[1]],
 
 						[[0],[0],[4],[2]],
 						[[0],[0],[1],[1]],
@@ -118,24 +94,32 @@ var obs_config = {
 						[[1],[1],[1],[1]],
 					]
 };
+fs.readFile('settings.json', (err, data) => {
+	if (!err) {
+		var json1 = JSON.parse(data);
+		obs_config=json1.config;
+		obs_config.stream1_state='';
+		obs_config.stream2_state='';
+		obs_config.stream3_state='';
+		obs_config.stream4_state='';
+		obs_config.stream5_state='';
+		obs_config.stream6_state='';
+	}else{
+	
+		fs.writeFile('settings.json', '{"config":'+JSON.stringify(obs_config,null,2)+'}', 'utf8', function(){});
+	};
 
+});
 
-var input = new midi.input();
-var output = new midi.output();
-
-console.log(input.getPortCount());
-console.log(output.getPortCount());
-input.openPort(0);
-output.openPort(1);
 
 function update_leds()
 {
-	obs.getCurrentScene({}).then(data => {
+	obs.sendCallback('GetCurrentScene',{},function(error,data){
 		data.sources.forEach(source2 => {
-			for (var nr of [1,2,3,4,5,6])
+			for (var nr of [1,2,3,4,5,6,7,8,9,10,11,12])
 			{
 				if (source2.name == slots[nr-1][0]) {
-					output.sendMessage([176,47+nr,(source2.render)?127:0]);
+
 					io.sockets.emit('slot_state',nr,source2.render);
 				}
 			}
@@ -147,14 +131,10 @@ function disable_win(nr)
 {
 	console.log("off slot:"+nr);
 	
-	obs.setSourceRender({
+	obs.send('SetSceneItemRender',{
 		'scene-name': 'main',
 		'source': slots[nr-1][0],
 		'render': 0
-	}).then(data => {
-		//console.log(data.status);
-	}).catch(err => { 
-		console.log(err);
 	});
 	
 	update_leds();
@@ -162,7 +142,7 @@ function disable_win(nr)
 
 function toggle_win(nr)
 {
-	obs.getCurrentScene({}).then(data => {
+	obs.sendCallback('GetCurrentScene',{},function(error,data){
 		data.sources.forEach(source2 => {
 			if (source2.name == slots[nr-1][0]) {
 
@@ -170,14 +150,10 @@ function toggle_win(nr)
 				{
 					console.log("on: slot:"+nr);
 			
-					obs.setSourceRender({
+					obs.send('SetSceneItemRender',{
 						'scene-name': 'main',
 						'source': slots[nr-1][0],
 						'render': true
-					}).then(data => {
-						//console.log(data.status);
-					}).catch(err => { 
-						console.log(err);
 					});
 					update_leds();
 				}
@@ -236,7 +212,9 @@ function win_get_yMax(nr)
 }
 	
 function playlog(url) {
-	
+
+	return;
+
 	const postData = querystring.stringify({
 		'url': url,
 		'date': new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
@@ -274,13 +252,14 @@ function set_win_active(nr)
 	set_win_pos((4==nr)?1:4,'main',slots[(4==nr)? 0 : 3][0],win_get_x(4),win_get_y(4),win_get_xMax(4),win_get_yMax(4),slots[(4==nr)?0:3][2]);
 	set_win_pos((5==nr)?1:5,'main',slots[(5==nr)? 0 : 4][0],win_get_x(5),win_get_y(5),win_get_xMax(5),win_get_yMax(5),slots[(5==nr)?0:4][2]);
 	set_win_pos((6==nr)?1:6,'main',slots[(6==nr)? 0 : 5][0],win_get_x(6),win_get_y(6),win_get_xMax(6),win_get_yMax(6),slots[(6==nr)?0:5][2]);
+	set_win_pos((7==nr)?1:7,'main',slots[(7==nr)? 0 : 6][0],win_get_x(7),win_get_y(7),win_get_xMax(7),win_get_yMax(7),slots[(7==nr)?0:6][2]);
+	set_win_pos((8==nr)?1:8,'main',slots[(8==nr)? 0 : 7][0],win_get_x(8),win_get_y(8),win_get_xMax(8),win_get_yMax(8),slots[(8==nr)?0:7][2]);
+	set_win_pos((9==nr)?1:9,'main',slots[(9==nr)? 0 : 8][0],win_get_x(9),win_get_y(9),win_get_xMax(9),win_get_yMax(9),slots[(9==nr)?0:8][2]);
+	set_win_pos((10==nr)?1:10,'main',slots[(10==nr)? 0 : 9][0],win_get_x(10),win_get_y(10),win_get_xMax(10),win_get_yMax(10),slots[(10==nr)?0:9][2]);
+	set_win_pos((11==nr)?1:11,'main',slots[(11==nr)? 0 : 10][0],win_get_x(11),win_get_y(11),win_get_xMax(11),win_get_yMax(11),slots[(11==nr)?0:10][2]);
+	set_win_pos((12==nr)?1:12,'main',slots[(12==nr)? 0 : 11][0],win_get_x(12),win_get_y(12),win_get_xMax(12),win_get_yMax(12),slots[(12==nr)?0:11][2]);
 
-	output.sendMessage([176,64,(nr==1)?127:0]);
-	output.sendMessage([176,65,(nr==2)?127:0]);
-	output.sendMessage([176,66,(nr==3)?127:0]);
-	output.sendMessage([176,67,(nr==4)?127:0]);
-	output.sendMessage([176,68,(nr==5)?127:0]);
-	output.sendMessage([176,69,(nr==6)?127:0]);
+
 	io.sockets.emit('zoom_slot',nr);
 }
 
@@ -407,7 +386,7 @@ function update_stream_url(item,value)
 		obs_config['stream'+item+'_state']='';
 		io.sockets.emit('stream_state',item,'');
 		
-		for (var nr of [1,2,3,4,5,6])
+		for (var nr of [1,2,3,4,5,6,7,8,9,10,11,12])
 		{
 			if ('d'+item == slots[nr-1][0]) {
 				disable_win(nr);
@@ -418,7 +397,7 @@ function update_stream_url(item,value)
 		console.log(`child process exited with error ${code} ${text}`);
 		obs_config['stream'+item+'_state']='';
 		io.sockets.emit('stream_state',item,'');
-		for (var nr of [1,2,3,4,5,6])
+		for (var nr of [1,2,3,4,5,6,7,8,9,10,11,12])
 		{
 			if ('d'+item == slots[nr-1][0]) {
 				disable_win(nr);
@@ -435,7 +414,7 @@ function set_win_pos(nr,scene,source,x,y,w,h,r)
 
 	var scale = 0.25;
 
-	obs.getCurrentScene({}).then(data => {
+	obs.sendCallback('GetCurrentScene',{},function(error,data){
 		data.sources.forEach(source2 => {
 			if (source2.name == source) {
 				console.log(source2);
@@ -491,115 +470,59 @@ function set_win_pos(nr,scene,source,x,y,w,h,r)
 		if(source !== 'none')
 		{
 
-			obs.setSceneItemPosition({
+			obs.send('SetSceneItemPosition',{
 				'scene-name': scene,
 				'item': source,
 				'x': x,
 				'y': y
-			}).then(data => {
-				//console.log(data.status);
-			}).catch(err => { 
-				console.log(err);
 			});
 		
 			console.log(r);
 
-			obs.setSceneItemTransform({
+			obs.send('SetSceneItemTransform',{
 				'scene-name': scene,
 				'item': source,
 				'rotation': (r*1.0),
 				'x-scale': scale,
 				'y-scale': scale
-			}).then(data => {
-				//console.log(data.status);
-			}).catch(err => { 
-				console.log(err);
 			});
 		}
 
-	}).catch(err => { 
-		console.log(err);
 	});
 }
 
 
 
-input.on('message', function(deltaTime, message) {
-	//console.log('m:' + message + ' d:' + deltaTime);
 
-	//output.sendMessage(message);//[176,22,1]);
-
-	if(message[0]==176)
-	{
-		if((message[1]>=0)&&(message[1]<6))
-		{
-			//console.log("vol"+message[1]+':'+message[2]/127);
-			io.sockets.emit('volume',message[1]+1,(message[2]*message[2])/(127*127)*100);
-			obs.setVolume({
-				'source': slots[message[1]][0],
-				'volume': (message[2]*message[2])/(127*127)
-			}).then(data => {
-				//console.log(data.status);
-			}).catch(err => { 
-				console.log(err);
-			});
-		}
-		else if((message[1]>=64)&&(message[1]<70))
-		{
-			if(message[2]==127)
-				set_win_active(message[1]-63);
-		}
-		else if((message[1]>=48)&&(message[1]<54))
-		{
-			if(message[2]==127)
-				toggle_win(message[1]-47);
-		}
-	}
-
-
-});
 
 var obs_connected = false;
 
 function connect_to_obs()
 {
-	if(obs_connected) return;
 
-	obs.connect({ address: 'localhost:4444', password: 'websocketpw' }).then(() => {
-		console.log('Success! We\'re connected & authenticated.');
-		obs_connected = true;
-		return obs.getSceneList({});
-	}).catch(err => { // Ensure that you add a catch handler to every Promise chain.
+}
 
-		setTimeout(connect_to_obs, 5000);
-		throw('ERRORXY:'+err+" (retry in 5s)");
-	}).then(data => {
-		
-		//console.log(`${data.scenes.length} Available Scenes!`);
-		//data.scenes.forEach(scene => {
-		//	if (scene.name !== data.currentScene) {
-				//console.log('Found a different scene! Switching to Scene:', scene.name);
-				//obs.setCurrentScene({'scene-name': scene.name});
-		//	}
-		//});
+
+		obs.on('ConnectionOpened', function(data){
 	
-	
-		for (var nr of [1,2,3,4,5,6])
-		{
-			obs.setSourceRender({
-				'scene-name': 'main',
-				'source': slots[nr-1][0],
-				'render': 0
-			}).then(data => {
-				//console.log(data.status);
-			}).catch(err => { 
-				console.log('E2x:'+err);
-			});
-		};
+			for (var nr of [1,2,3,4,5,6,7,8,9,10,11,12])
+			{
+				obs.send('SetSceneItemRender',{
+					'scene-name': 'main',
+					'source': slots[nr-1][0],
+					'render': 0
+				});
+			};
+			
+			console.log('obsconn2');
+			
+			obs_connected = true;
+			
+			update_leds();
+		});	
+
 		
-		
-		update_leds();
-	
+
 		obs.on('SceneItemVisibilityChanged', function(data){
 		
 			console.log('SIVC:'+data);
@@ -609,13 +532,8 @@ function connect_to_obs()
 		obs.on('ConnectionClosed', function(data){
 			obs_connected=false;
 		});
-	
-	}).catch(err => { // Ensure that you add a catch handler to every Promise chain.
-		console.log('ERROR:'+err);
-	});
-}
 
-
+	obs.connect({ address: 'localhost:4444', password: 'websocketpw' });
 
 
 
@@ -623,21 +541,19 @@ function connect_to_obs()
 // When a client connects, we note it in the console
 io.sockets.on('connection', function (socket) {
 
-	if(!obs_connected) connect_to_obs();
-	console.log('A client is connected!');
-		
-	obs.getCurrentScene({}).then(data => {
+	update_leds();
+	
+	obs.sendCallback('GetCurrentScene',{},function(error,data){
 		socket.emit('sources',data.sources,slots);
-	}).catch(err => { 
-		console.log(err);
 	});
-	
-	
-	obs.getCurrentScene({'source': 'd1'}).then(data => {
+
+
+	obs.sendCallback('GetCurrentScene',{},function(error,data){
+
 
 		for (var source of data.sources)
 		{
-			for (var x of [1,2,3,4,5,6])
+			for (var x of [1,2,3,4,5,6,7,8,9,10,11,12])
 			{
 				if(slots[x-1][0] == source.name)
 				{
@@ -646,9 +562,6 @@ io.sockets.on('connection', function (socket) {
 				}
 			}
 		}
-
-	}).catch(err => { 
-		console.log(err);
 	});
 	
 	socket.emit('conn');
@@ -687,19 +600,15 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('matrix',obs_config.win_config);	
 	socket.emit('zoom_slot',activeSlot);
 	
-	update_leds();
+	//update_leds();
 	socket.on('volume', function(nr,vol){
 		if(!obs_connected) connect_to_obs();
 			
 		//console.log("vol"+nr+':'+vol/100);
 
-		obs.setVolume({
+		obs.send('SetVolume',{
 			'source': slots[nr-1][0],
 			'volume': vol/100
-		}).then(data => {
-			//console.log(data.status);
-		}).catch(err => { 
-			console.log(err);
 		});
 
 	});
@@ -734,6 +643,7 @@ io.sockets.on('connection', function (socket) {
 					obs_config.win_config[x-1][y-1]= matrix[x-1][y-1];
 				}
 			}
+			fs.writeFile('settings.json', '{"config":'+JSON.stringify(obs_config,null,2)+'}', 'utf8', function(){});
 			set_win_active(activeSlot);
 	});
 	
@@ -793,6 +703,7 @@ io.sockets.on('connection', function (socket) {
 			obs_config.cube1=value
 		else if(item == 'ticker1')
 			obs_config.ticker1=value;
+		fs.writeFile('settings.json', '{"config":'+JSON.stringify(obs_config,null,2)+'}', 'utf8', function(){});
 	});
 	
 	socket.on('stream_desc', function(item,value){
@@ -809,6 +720,7 @@ io.sockets.on('connection', function (socket) {
 			obs_config.stream5_desc=value
 		else if(item == '6')
 			obs_config.stream6_desc=value;
+		fs.writeFile('settings.json', '{"config":'+JSON.stringify(obs_config,null,2)+'}', 'utf8', function(){});
 	});
 
 
@@ -828,6 +740,7 @@ io.sockets.on('connection', function (socket) {
 			obs_config.stream5_url=value
 		else if(item == '6')
 			obs_config.stream6_url=value;
+		fs.writeFile('settings.json', '{"config":'+JSON.stringify(obs_config,null,2)+'}', 'utf8', function(){});
 	});
 	socket.on('resolve_url', function(value){
 
