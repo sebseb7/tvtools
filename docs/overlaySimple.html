@@ -354,7 +354,7 @@ initializeClock('clockdiv', deadline);
 
 function startTime() {
 
-	var tzdiff=0;
+	var tzdiff=-1;
 
 	if(glob_timezone=='PDT') tzdiff = 9;
 	if(glob_timezone=='PST') tzdiff = 8;
@@ -377,7 +377,8 @@ function startTime() {
 	var n = today.getMonth()+1;
 	var y = today.getFullYear();
 	document.getElementById('txt').innerHTML = ("00"+h).slice(-2) + ":" + ("00"+m).slice(-2) + ":" + ("00"+s).slice(-2);
-	document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2);
+	//document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2);
+	document.getElementById('txt2').innerHTML = ("00"+d).slice(-2) + "." + ("00"+n).slice(-2) + ".";
 	//document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2) + "/" + ("00"+y).slice(-2);
 	var t = setTimeout(startTime, 500);
 }
@@ -481,7 +482,7 @@ socket.on('ctrl', function(item,value){
 			glob_timezone = value;
 			if(value == 'none')
 			{
-				$("span#timezonetext").text('LIVE');
+				$("span#timezonetext").text('');
 			}
 			else
 			{
@@ -529,7 +530,7 @@ function loaded() {
 
 <div id="clock1" style="left:320px" class="clock clock-inTop">
 <div style="padding-top:1px;margin-left:6px;float:left">	
-<span style="color:rgb(33,255,33)">S<span style="font-size:0.6em">eb</span>G<span style="font-size:0.6em">reen</span></span> 
+<span style="color:rgb(33,255,33)">G<span style="font-size:0.6em">reen</span>TV<span style="font-size:0.6em"></span></span> 
 </div>
 <div style="padding-top:2px;margin-left:6px;float:left;color:white;font-size:10px;line-height:9px">
 <span style="font-weight:bold;font-size:11px;" id="timezonetext"></span><br/>
@@ -565,6 +566,12 @@ document.getElementById("pic3").src = image.src;
 document.getElementById("pic4").src = image.src;
 document.getElementById("pic5").src = image.src;
 document.getElementById("pic6").src = image.src;
+document.getElementById("pic7").src = image.src;
+document.getElementById("pic8").src = image.src;
+document.getElementById("pic9").src = image.src;
+document.getElementById("pic10").src = image.src;
+document.getElementById("pic11").src = image.src;
+document.getElementById("pic12").src = image.src;
 </script>
 
 

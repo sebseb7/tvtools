@@ -1,8 +1,8 @@
 #!/usr/local/bin/node
 
-const service = require ("os-service");
 const fs = require('fs');
-
+/*
+const service = require ("os-service");
 if (process.argv[2] == "--add") {
 	var options = {
 		displayName: "rtmplink",
@@ -27,6 +27,7 @@ if (process.argv[2] == "--add") {
 		service.stop (0);
 	});
 }
+*/
 var express = require('express');
 var app = require('express')();
 var http = require('http');

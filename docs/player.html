@@ -4,7 +4,8 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-		<script src="https://reference.dashif.org/dash.js/v3.0.0/dist/dash.all.min.js"></script>
+		<!--<script src="https://reference.dashif.org/dash.js/v3.0.0/dist/dash.all.min.js"></script>-->
+		<script src="https://reference.dashif.org/dash.js/v2.9.3/dist/dash.all.debug.js"></script>
 		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
 		<style>
 			body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }
@@ -49,14 +50,14 @@
 //				player.setVolume(100);
 //				player.setAutoSwitchQualityFor('video', false);
 //				player.setMaxAllowedBitrateFor('video', 800000);
-				player.updateSettings({
+			/*	player.updateSettings({
 					streaming: {
 						abr: {
 							maxBitrate: { audio: 100, video: 800 }
 						}
 					}
 				});						
-
+*/
 				//var ctx = new AudioContext();
 				//var audio = document.getElementById('videoPlayer');
 				//var audioSrc = ctx.createMediaElementSource(audio);

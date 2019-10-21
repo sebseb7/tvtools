@@ -22,8 +22,8 @@ var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0],[
 var player = [];
 var obs_config = {
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
-					'ticker2text':'<img align="top" src="https://facebookbrand.com/wp-content/themes/fb-branding/prj-fb-branding/assets/images/fb-art.png" height="25"/> seb.greenbus',
-					'ticker3text':'<img align="top" src="https://cdn1.iconfinder.com/data/icons/logotypes/32/youtube-512.png" height="25"/> /c/sebGreen',
+					'ticker2text':'<img align="top" src="https://cdn1.iconfinder.com/data/icons/logotypes/32/youtube-512.png" height="25"/> /c/sebGreen',
+					'ticker3text':'',
 					'ticker4text':'',
 					'banner1text':'',
 					'banner1rtext':'',
@@ -34,22 +34,22 @@ var obs_config = {
 					'clockpos':960,
 					'cube1':'in',
 					'ticker1':'out',
-					'stream1_url':'https://www.youtube.com/watch?v=m_ePKaRde2I',
+					'stream1_url':'',
 					'stream1_desc':'',
 					'stream1_state':'',
-					'stream2_url':'https://www.youtube.com/watch?v=LJD57Dr2k54',
+					'stream2_url':'',
 					'stream2_desc':'',
 					'stream2_state':'',
-					'stream3_url':'https://www.pscp.tv/w/1lPKqwAzMpeJb',
+					'stream3_url':'',
 					'stream3_desc':'',
 					'stream3_state':'',
-					'stream4_url':'https://www.pscp.tv/w/1rmxPqDpXEMKN?q=seattle',
+					'stream4_url':'',
 					'stream4_desc':'',
 					'stream4_state':'',
-					'stream5_url':'https://www.youtube.com/watch?v=1aGuKz2bc58',
+					'stream5_url':'',
 					'stream5_desc':'',
 					'stream5_state':'',
-					'stream6_url':'https://www.youtube.com/watch?v=z7Bftlvh1qs',
+					'stream6_url':'',
 					'stream6_desc':'',
 					'stream6_state':'',
 					'win_config':[
@@ -131,10 +131,11 @@ function disable_win(nr)
 {
 	console.log("off slot:"+nr);
 	
-	obs.send('SetSceneItemRender',{
+	obs.send('SetSceneItemProperties',{
 		'scene-name': 'main',
-		'source': slots[nr-1][0],
-		'render': 0
+		'item': slots[nr-1][0],
+		'visible': false,
+		'locked': true
 	});
 	
 	update_leds();
@@ -150,10 +151,11 @@ function toggle_win(nr)
 				{
 					console.log("on: slot:"+nr);
 			
-					obs.send('SetSceneItemRender',{
+					obs.send('SetSceneItemProperties',{
 						'scene-name': 'main',
-						'source': slots[nr-1][0],
-						'render': true
+						'item': slots[nr-1][0],
+						'visible': true,
+						'locked': false
 					});
 					update_leds();
 				}
@@ -409,46 +411,71 @@ function update_stream_url(item,value)
 function set_win_pos(nr,scene,source,x,y,w,h,r)
 {
 
-	//console.log('pos: ' + scene + ' ' + source);
+	console.log('pos: ' + scene + ' ' + source);
 
 
 	var scale = 0.25;
 
 	obs.sendCallback('GetCurrentScene',{},function(error,data){
-		data.sources.forEach(source2 => {
-			if (source2.name == source) {
-				console.log(source2);
-				if(source2.source_cx != 0)
-				{
-					if(r==0)
-					{
-						scale = (w-x)/source2.source_cx;
-						if(scale > ((h-y)/source2.source_cy))
-							scale = (h-y)/source2.source_cy;
-					}
-					else if(r== -90)
-					{
-						scale = (w-x)/source2.source_cy;
-						if(scale > ((h-y)/source2.source_cx))
-							scale = (h-y)/source2.source_cx;
-					}
-					else if(r== 90)
-					{
-						scale = (w-x)/source2.source_cy;
-						if(scale > ((h-y)/source2.source_cx))
-							scale = (h-y)/source2.source_cx;
-					}
-					else if(r==180)
-					{
-						scale = (w-x)/source2.source_cx;
-						if(scale > ((h-y)/source2.source_cy))
-							scale = (h-y)/source2.source_cy;
-					}
-				}
+
+		//console.log(error);
+		//console.log(data.sources);
+
+
+		var sources = data.sources;
+		for(var source2 of sources){
+			if ((source2.name == source)&&(source2.render)) {
+
+
+				set_win_pos2(nr,scene,source,source2,x,y,w,h,r);
+
 			}
-		});
-			
-		io.sockets.emit('tile',nr,x,y);
+		};
+	});
+}
+
+function set_win_pos2(nr,scene,source,source2,x,y,w,h,r)
+{
+	obs.sendCallback('GetSceneItemProperties',{'scene-name': 'main','item': source},function(error,data2){
+	
+		console.log(error);
+		console.log(source);
+
+		var hori = data2.crop.bottom + data2.crop.top;
+		var vert = data2.crop.left + data2.crop.right
+
+		var oscale = data2.scale.x;
+		var oposx = data2.position.x;
+		var oposy = data2.position.y;
+
+		source2.source_cx -= vert;
+		source2.source_cy -= hori;
+
+		if(r==0)
+		{
+			scale = (w-x)/source2.source_cx;
+			if(scale > ((h-y)/source2.source_cy))
+				scale = (h-y)/source2.source_cy;
+		}
+		else if(r== -90)
+		{
+			scale = (w-x)/source2.source_cy;
+			if(scale > ((h-y)/source2.source_cx))
+				scale = (h-y)/source2.source_cx;
+		}
+		else if(r== 90)
+		{
+			scale = (w-x)/source2.source_cy;
+			if(scale > ((h-y)/source2.source_cx))
+				scale = (h-y)/source2.source_cx;
+		}
+		else if(r==180)
+		{
+			scale = (w-x)/source2.source_cx;
+			if(scale > ((h-y)/source2.source_cy))
+				scale = (h-y)/source2.source_cy;
+		}
+		
 
 		if(r==-90)
 		{
@@ -464,34 +491,41 @@ function set_win_pos(nr,scene,source,x,y,w,h,r)
 			x+=(w-x);
 		}
 
-
-		console.log('set: ' + source +':' + scale + ': ' + x + ' ' + y + ' ' + w + ' ' + h + ' r'+r);
-
-		if(source !== 'none')
+		if((oscale != scale)||(oposx != x)||(oposy != y))
 		{
-
-			obs.send('SetSceneItemPosition',{
-				'scene-name': scene,
-				'item': source,
-				'x': x,
-				'y': y
-			});
-		
-			console.log(r);
-
-			obs.send('SetSceneItemTransform',{
-				'scene-name': scene,
-				'item': source,
-				'rotation': (r*1.0),
-				'x-scale': scale,
-				'y-scale': scale
-			});
+			move_win(oscale,oposx,oposy,scale,x,y,scene,source,r,1);
 		}
-
 	});
 }
 
 
+function move_win(oscale,oposx,oposy,scale,x,y,scene,source,r,step) {
+
+
+	var scalediff = (((scale-oscale)/10)*step).toFixed(6);
+	var xdiff = ((x-oposx)/10)*step;
+	var ydiff = ((y-oposy)/10)*step;
+
+	console.log(scalediff);
+	console.log(xdiff);
+	console.log(ydiff);
+
+	obs.send('SetSceneItemPosition',{
+		'scene-name': scene,
+		'item': source,
+		'x': x,
+		'y': y
+	});
+
+	obs.send('SetSceneItemTransform',{
+		'scene-name': scene,
+		'item': source,
+		'rotation': (r*1.0),
+		'x-scale': scale,
+		'y-scale': scale
+	});
+
+}
 
 
 
@@ -558,7 +592,7 @@ io.sockets.on('connection', function (socket) {
 				if(slots[x-1][0] == source.name)
 				{
 					//console.log(x+':'+source.volume);
-					socket.emit('volume',x,source.volume*100);
+					//socket.emit('volume',x,Math.sqrt(source.volume*100)/100);
 				}
 			}
 		}
@@ -608,7 +642,7 @@ io.sockets.on('connection', function (socket) {
 
 		obs.send('SetVolume',{
 			'source': slots[nr-1][0],
-			'volume': vol/100
+			'volume': (vol*vol)/10000
 		});
 
 	});
@@ -762,7 +796,7 @@ var server = http.createServer(function(req, res) {
 		'content-type': 'text/html',
 		'Access-Control-Allow-Origin': '*.twitter.com'
 	});
-	fs.createReadStream(path.resolve(__dirname+'/../docs/cards.html')).pipe(res);
+	fs.createReadStream(path.resolve(__dirname+'/../docs/cardsW.html')).pipe(res);
 });
 
 server.listen(8081);
