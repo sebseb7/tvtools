@@ -591,11 +591,29 @@
 
 		});
 		socket.on('matrix', function(matrix){
-			for (var x of [1,2,3,4])
+			for (var nr of [1,2,3,4,5,6,7,8])
 			{
-				for (var y of [1,2,3,4])
+				for (var x of [1,2,3,4])
 				{
-					$('#mx'+x+''+y).val(matrix[x-1][y-1]);
+					for (var y of [1,2,3,4])
+					{
+						if(nr == 1)
+							$('#mx'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 2)
+							$('#mx_'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 3)
+							$('#mx__'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 4)
+							$('#mx___'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 5)
+							$('#mx_2_'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 6)
+							$('#mx_2__'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 7)
+							$('#mx_3_'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+						if(nr == 8)
+							$('#mx_3__'+x+''+y).val(matrix[nr-1][x-1][y-1]);
+					}
 				}
 			}
 		});
@@ -943,7 +961,7 @@
 					win_config[x-1][y-1]= $('#mx'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,0);
 		});
 		$('#mx_set2').click(function(){
 					
@@ -956,7 +974,7 @@
 					win_config[x-1][y-1]= $('#mx_'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,1);
 		});
 		$('#mx_set3').click(function(){
 					
@@ -969,7 +987,7 @@
 					win_config[x-1][y-1]= $('#mx__'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,2);
 		});
 		$('#mx_set4').click(function(){
 					
@@ -982,7 +1000,7 @@
 					win_config[x-1][y-1]= $('#mx___'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,3);
 		});
 		$('#mx_set5').click(function(){
 					
@@ -995,7 +1013,7 @@
 					win_config[x-1][y-1]= $('#mx_2_'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,4);
 		});
 		$('#mx_set6').click(function(){
 					
@@ -1008,7 +1026,7 @@
 					win_config[x-1][y-1]= $('#mx_2__'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,5);
 		});
 		$('#mx_set7').click(function(){
 					
@@ -1021,7 +1039,7 @@
 					win_config[x-1][y-1]= $('#mx_3_'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,6);
 		});
 		$('#mx_set8').click(function(){
 					
@@ -1034,7 +1052,7 @@
 					win_config[x-1][y-1]= $('#mx_3__'+x+''+y).val();
 				}
 			}
-			socket.emit('set_matrix',win_config);
+			socket.emit('set_matrix',win_config,7);
 		});
 		
 		$("#clockpos").on('change keyup', function () {

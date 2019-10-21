@@ -20,6 +20,10 @@ var obs = new OBSWebSocket();
 var activeSlot = 1;
 var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0],['player1',0,0],['player2',0,0],['player3',0,0],['player4',0,0],['player5',0,0],['player6',0,0]];
 var player = [];
+var win_config =		[[[0],[12],[11],[10]],
+						[[0],[9],[8],[7]],
+						[[0],[6],[5],[4]],
+						[[0],[3],[2],[1]]];
 var obs_config = {
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
 					'ticker2text':'<img align="top" src="https://cdn1.iconfinder.com/data/icons/logotypes/32/youtube-512.png" height="25"/> /c/sebGreen',
@@ -53,45 +57,45 @@ var obs_config = {
 					'stream6_desc':'',
 					'stream6_state':'',
 					'win_config':[
-						[[0],[12],[11],[10]],
+						[[[0],[12],[11],[10]],
 						[[0],[9],[8],[7]],
 						[[0],[6],[5],[4]],
-						[[0],[3],[2],[1]],
+						[[0],[3],[2],[1]]],
 
-						[[0],[11],[5],[4]],
+						[[[0],[11],[5],[4]],
 						[[12],[10],[3],[2]],
 						[[9],[8],[1],[1]],
-						[[7],[6],[1],[1]],
+						[[7],[6],[1],[1]]],
 
-						[[0],[0],[2],[2]],
+						[[[0],[0],[2],[2]],
 						[[8],[7],[2],[2]],
 						[[6],[5],[1],[1]],
-						[[4],[3],[1],[1]],
+						[[4],[3],[1],[1]]],
 
-						[[7],[5],[2],[2]],
+						[[[7],[5],[2],[2]],
 						[[6],[4],[2],[2]],
 						[[3],[3],[1],[1]],
-						[[3],[3],[1],[1]],
+						[[3],[3],[1],[1]]],
 
-						[[0],[0],[4],[2]],
+						[[[0],[0],[4],[2]],
 						[[0],[0],[1],[1]],
 						[[0],[8],[1],[1]],
-						[[7],[6],[5],[3]],
+						[[7],[6],[5],[3]]],
 
-						[[8],[7],[3],[2]],
+						[[[8],[7],[3],[2]],
 						[[6],[1],[1],[1]],
 						[[5],[1],[1],[1]],
-						[[4],[1],[1],[1]],
+						[[4],[1],[1],[1]]],
 
-						[[8],[1],[1],[1]],
+						[[[8],[1],[1],[1]],
 						[[7],[1],[1],[1]],
 						[[6],[1],[1],[1]],
-						[[5],[4],[3],[2]],
+						[[5],[4],[3],[2]]],
 
+						[[[1],[1],[1],[1]],
 						[[1],[1],[1],[1]],
 						[[1],[1],[1],[1]],
-						[[1],[1],[1],[1]],
-						[[1],[1],[1],[1]],
+						[[1],[1],[1],[1]]]
 					]
 };
 fs.readFile('settings.json', (err, data) => {
@@ -174,7 +178,7 @@ function win_get_x(nr)
 	{
 		for (var y of [0,1,2,3])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1280/4*y;
+			if(win_config[x][y]==nr) return 1280/4*y;
 		}
 	}
 	return 1280;
@@ -185,7 +189,7 @@ function win_get_xMax(nr)
 	{
 		for (var y of [3,2,1,0])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 1280/4*(y+1);
+			if(win_config[x][y]==nr) return 1280/4*(y+1);
 		}
 	}
 	return 1280+(1280/4);
@@ -196,7 +200,7 @@ function win_get_y(nr)
 	{
 		for (var y of [0,1,2,3])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 720/4*x;
+			if(win_config[x][y]==nr) return 720/4*x;
 		}
 	}
 	return 720;
@@ -207,7 +211,7 @@ function win_get_yMax(nr)
 	{
 		for (var y of [3,2,1,0])//spalte
 		{
-			if(obs_config.win_config[x][y]==nr) return 720/4*(x+1);
+			if(win_config[x][y]==nr) return 720/4*(x+1);
 		}
 	}
 	return 720+(720/4);
@@ -667,14 +671,15 @@ io.sockets.on('connection', function (socket) {
 		update_leds();
 	});
 	
-	socket.on('set_matrix', function(matrix){
+	socket.on('set_matrix', function(matrix,nr){
 		console.log(matrix);
 			
 			for (var x of [1,2,3,4])
 			{
 				for (var y of [1,2,3,4])
 				{
-					obs_config.win_config[x-1][y-1]= matrix[x-1][y-1];
+					obs_config.win_config[nr][x-1][y-1]= matrix[x-1][y-1];
+					win_config[x-1][y-1]= matrix[x-1][y-1];
 				}
 			}
 			fs.writeFile('settings.json', '{"config":'+JSON.stringify(obs_config,null,2)+'}', 'utf8', function(){});
