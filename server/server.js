@@ -155,13 +155,19 @@ function toggle_win(nr)
 				{
 					console.log("on: slot:"+nr);
 			
-					obs.send('SetSceneItemProperties',{
+					obs.sendCallback('SetSceneItemProperties',{
 						'scene-name': 'main',
 						'item': slots[nr-1][0],
 						'visible': true,
 						'locked': false
+					},function(error){
+					
+						update_leds();
+	
+						set_win_pos(nr,'main',slots[nr-1][0],win_get_x(nr),win_get_y(nr),win_get_xMax(nr),win_get_yMax(nr),slots[nr-1][2]);
+					
 					});
-					update_leds();
+
 				}
 				else
 				{

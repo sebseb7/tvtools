@@ -356,10 +356,10 @@ function startTime() {
 
 	var tzdiff=-1;
 
-	if(glob_timezone=='PDT') tzdiff = 9;
-	if(glob_timezone=='PST') tzdiff = 8;
-	if(glob_timezone=='CDT') tzdiff = 7;
-	if(glob_timezone=='EDT') tzdiff = 6;
+	if(glob_timezone=='PDT') tzdiff = 8;
+	if(glob_timezone=='PST') tzdiff = 7;
+	if(glob_timezone=='CDT') tzdiff = 6;
+	if(glob_timezone=='EDT') tzdiff = 5;
 
 
 	var today = new Date(new Date().getTime() - (tzdiff*60*60*1000) - 60*60*1000);
@@ -377,9 +377,13 @@ function startTime() {
 	var n = today.getMonth()+1;
 	var y = today.getFullYear();
 	document.getElementById('txt').innerHTML = ("00"+h).slice(-2) + ":" + ("00"+m).slice(-2) + ":" + ("00"+s).slice(-2);
-	//document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2);
-	document.getElementById('txt2').innerHTML = ("00"+d).slice(-2) + "." + ("00"+n).slice(-2) + ".";
-	//document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2) + "/" + ("00"+y).slice(-2);
+	
+	if(glob_timezone == 'none')
+	{
+		document.getElementById('txt2').innerHTML = ("00"+d).slice(-2) + "." + ("00"+n).slice(-2) + ".";
+	}else{
+		document.getElementById('txt2').innerHTML = ("00"+n).slice(-2) + "/" + ("00"+d).slice(-2);
+	}
 	var t = setTimeout(startTime, 500);
 }
 var image = new Image();
