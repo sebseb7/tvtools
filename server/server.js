@@ -18,13 +18,25 @@ var server = http.createServer(function(req, res) {
 var io = require('socket.io').listen(server);
 var obs = new OBSWebSocket();
 var activeSlot = 1;
-var slots = [['d1',0,0],['d2',0,0],['d3',0,0],['d4',0,0],['d5',0,0],['d6',0,0],['player1',0,0],['player2',0,0],['player3',0,0],['player4',0,0],['player5',0,0],['player6',0,0]];
+var rtmp1on = 0;
+var rtmp2on = 0;
+var rtmp3on = 0;
+var rtmp4on = 0;
+var rtmp1pr;
+var rtmp2pr;
+var rtmp3pr;
+var rtmp4pr;
+var slots = [['d01',0,0],['d02',0,0],['d03',0,0],['d04',0,0],['d05',0,0],['d06',0,0],['d07',0,0],['d08',0,0],['d09',0,0],['d10',0,0],['d11',0,0],['d12',0,0]];
 var player = [];
 var win_config =		[[[0],[12],[11],[10]],
 						[[0],[9],[8],[7]],
 						[[0],[6],[5],[4]],
 						[[0],[3],[2],[1]]];
 var obs_config = {
+					'rtmp1':'',
+					'rtmp2':'',
+					'rtmp3':'',
+					'rtmp4':'',
 					'ticker1text':'<img align="top" src="http://icons.iconarchive.com/icons/limav/flat-gradient-social/256/Twitter-icon.png" height="25"/> @sebseb7',
 					'ticker2text':'<img align="top" src="https://cdn1.iconfinder.com/data/icons/logotypes/32/youtube-512.png" height="25"/> /c/sebGreen',
 					'ticker3text':'',
@@ -588,7 +600,19 @@ io.sockets.on('connection', function (socket) {
 	update_leds();
 	
 	obs.sendCallback('GetCurrentScene',{},function(error,data){
-		socket.emit('sources',data.sources,slots);
+		
+		var sources2 = [];
+		
+		for (var source of data.sources)
+		{
+			if(source.name.startsWith('d') )
+			{
+				sources2.push(source);
+			}
+		}
+		
+		
+		socket.emit('sources',sources2,slots);
 	});
 
 
@@ -610,6 +634,14 @@ io.sockets.on('connection', function (socket) {
 	
 	socket.emit('conn');
 	
+	socket.emit('ctrl','rtmp1',obs_config.rtmp1);
+	socket.emit('ctrl','rtmp2',obs_config.rtmp2);
+	socket.emit('ctrl','rtmp3',obs_config.rtmp3);
+	socket.emit('ctrl','rtmp4',obs_config.rtmp4);
+	socket.emit('rtmp1on',rtmp1on);
+	socket.emit('rtmp2on',rtmp2on);
+	socket.emit('rtmp3on',rtmp3on);
+	socket.emit('rtmp4on',rtmp4on);
 	socket.emit('ctrl','ticker1text',obs_config.ticker1text);
 	socket.emit('ctrl','ticker2text',obs_config.ticker2text);
 	socket.emit('ctrl','ticker3text',obs_config.ticker3text);
@@ -719,6 +751,135 @@ io.sockets.on('connection', function (socket) {
 		if(player[slot-1])
 			socket.emit('playdesc',slot,player[slot-1][0],player[slot-1][1],player[slot-1][2]);
 	});
+	
+	socket.on('rtmp1toggle', function(){
+		if(rtmp1on) {
+			rtmp1on=0;
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", rtmp1pr.pid, '/f', '/t'])
+				else process.kill(rtmp1pr.pid);
+		}else{
+			rtmp1pr = spawn('C:\\Users\\seb\\ffmpeg', [
+										'-hide_banner','-rtbufsize 300M','-re','-s 1280x720','-f dshow','-framerate 30',
+										'-i video="OBS-Camera":audio="Internal Record (nerds.de LoopBeAudio - Internal Audio Ports)"',
+										'-vcodec h264_amf','-pix_fmt yuv420p','-quality quality','-rc cqp','-r 30','-qp_i 25','-qp_p 33','-qp_b 30','-vprofile high','-level 4.1','-coder cabac',
+										'-maxrate 3000k','-b:a 128k','-acodec aac','-r 30','-async 1','-g 60','-keyint_min 60','-movflags +faststart','-f flv', obs_config.rtmp1,
+										'-nostdin','-loglevel warning','-stats'
+			],{shell: true});
+	
+			rtmp1pr.stdout.on('data', (data) => {
+				console.log('stdout: '+data);
+			});
+			rtmp1pr.stderr.on('data', (data) => {
+				console.log('stderr: '+data);
+			});
+
+			rtmp1pr.on('close', (code) => {
+				console.log(`child process exited with code ${code}`);
+			});
+			rtmp1pr.on('error', (code,text) => {
+				console.log(`child process exited with error ${code} ${text}`);
+			});
+			rtmp1on=1;
+		};
+		socket.emit('rtmp1on',rtmp1on);
+	});
+	socket.on('rtmp2toggle', function(){
+		if(rtmp2on) {
+			rtmp2on=0;
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", rtmp2pr.pid, '/f', '/t'])
+				else process.kill(rtmp2pr.pid);
+		}else{
+			rtmp2on=1;
+			rtmp2pr = spawn('C:\\Users\\seb\\ffmpeg', [
+										'-hide_banner','-rtbufsize 300M','-re','-s 1280x720','-f dshow','-framerate 30',
+										'-i video="OBS-Camera":audio="Internal Record (nerds.de LoopBeAudio - Internal Audio Ports)"',
+										'-vcodec h264_amf','-pix_fmt yuv420p','-quality quality','-b:v 4000k','-maxrate 4000k','-bufsize 4000k','-vprofile high','-level 4.1','-coder cabac',
+										'-b:a 128k','-acodec aac','-r 30','-async 1','-g 60','-keyint_min 60','-movflags +faststart','-f flv', obs_config.rtmp2,
+										'-nostdin','-loglevel warning','-stats'
+			],{shell: true});
+	
+			rtmp2pr.stdout.on('data', (data) => {
+				console.log('stdout: '+data);
+			});
+			rtmp2pr.stderr.on('data', (data) => {
+				console.log('stderr: '+data);
+			});
+
+			rtmp2pr.on('close', (code) => {
+				console.log(`child process exited with code ${code}`);
+			});
+			rtmp2pr.on('error', (code,text) => {
+				console.log(`child process exited with error ${code} ${text}`);
+			});
+		};
+		socket.emit('rtmp2on',rtmp2on);
+	});
+	socket.on('rtmp3toggle', function(){
+		if(rtmp3on) {
+			rtmp3on=0;
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", rtmp3pr.pid, '/f', '/t'])
+				else process.kill(rtmp3pr.pid);
+		}else{
+			rtmp3on=1;
+			rtmp3pr = spawn('C:\\Users\\seb\\ffmpeg', [
+										'-hide_banner','-rtbufsize 300M','-re','-s 1280x720','-f dshow','-framerate 30',
+										'-i video="OBS-Camera":audio="Internal Record (nerds.de LoopBeAudio - Internal Audio Ports)"',
+										'-vcodec h264_amf','-pix_fmt yuv420p','-quality quality','-b:v 4000k','-maxrate 4000k','-bufsize 4000k','-vprofile high','-level 4.1','-coder cabac',
+										'-b:a 128k','-acodec aac','-r 30','-async 1','-g 60','-keyint_min 60','-movflags +faststart','-f flv', obs_config.rtmp3,
+										'-nostdin','-loglevel warning','-stats'
+			],{shell: true});
+	
+			rtmp3pr.stdout.on('data', (data) => {
+				console.log('stdout: '+data);
+			});
+			rtmp3pr.stderr.on('data', (data) => {
+				console.log('stderr: '+data);
+			});
+
+			rtmp3pr.on('close', (code) => {
+				console.log(`child process exited with code ${code}`);
+			});
+			rtmp3pr.on('error', (code,text) => {
+				console.log(`child process exited with error ${code} ${text}`);
+			});
+		};
+		socket.emit('rtmp3on',rtmp3on);
+	});
+	socket.on('rtmp4toggle', function(){
+		if(rtmp4on) {
+			rtmp4on=0;
+			if(/^win/.test(process.platform))
+				spawn("taskkill", ["/pid", rtmp4pr.pid, '/f', '/t'])
+				else process.kill(rtmp4pr.pid);
+		}else{
+			rtmp4on=1;
+			rtmp4pr = spawn('C:\\Users\\seb\\ffmpeg', [
+										'-hide_banner','-rtbufsize 300M','-re','-s 1280x720','-f dshow','-framerate 30',
+										'-i video="OBS-Camera":audio="Internal Record (nerds.de LoopBeAudio - Internal Audio Ports)"',
+										'-vcodec h264_amf','-pix_fmt yuv420p','-quality quality','-b:v 4000k','-maxrate 4000k','-bufsize 4000k','-vprofile high','-level 4.1','-coder cabac',
+										'-b:a 128k','-acodec aac','-r 30','-async 1','-g 60','-keyint_min 60','-movflags +faststart','-f flv', obs_config.rtmp4,
+										'-nostdin','-loglevel warning','-stats'
+			],{shell: true});
+	
+			rtmp4pr.stdout.on('data', (data) => {
+				console.log('stdout: '+data);
+			});
+			rtmp4pr.stderr.on('data', (data) => {
+				console.log('stderr: '+data);
+			});
+
+			rtmp4pr.on('close', (code) => {
+				console.log(`child process exited with code ${code}`);
+			});
+			rtmp4pr.on('error', (code,text) => {
+				console.log(`child process exited with error ${code} ${text}`);
+			});
+		};
+		socket.emit('rtmp4on',rtmp4on);
+	});
 
 	socket.on('ctrl', function(item,value){
 		socket.broadcast.emit('ctrl',item,value);
@@ -736,6 +897,14 @@ io.sockets.on('connection', function (socket) {
 			obs_config.banner1rtext=value
 		else if(item == 'banner1')
 			obs_config.banner1=value
+		else if(item == 'rtmp1')
+			obs_config.rtmp1=value
+		else if(item == 'rtmp2')
+			obs_config.rtmp2=value
+		else if(item == 'rtmp3')
+			obs_config.rtmp3=value
+		else if(item == 'rtmp4')
+			obs_config.rtmp4=value
 		else if(item == 'timezone')
 			obs_config.timezone=value
 		else if(item == 'clockpos')

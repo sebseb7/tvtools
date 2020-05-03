@@ -4,7 +4,8 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-		<!--<script src="https://reference.dashif.org/dash.js/v3.0.0/dist/dash.all.min.js"></script>-->
+		<!--<script src="https://reference.dashif.org/dash.js/v3.0.1/dist/dash.all.min.js"></script>-->
+		<!--<script src="http://reference.dashif.org/dash.js/nightly/dist/dash.all.min.js"></script>-->
 		<script src="https://reference.dashif.org/dash.js/v2.9.3/dist/dash.all.debug.js"></script>
 		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
 		<style>
@@ -18,7 +19,7 @@
 
 	<body>
 
-		<video id="videoPlayer" style="width:640px;height:640px;"></video>
+		<video controls id="videoPlayer" style="width:640px;height:640px;"></video>
 
 		<script>
 			$.urlParam = function(name){
@@ -45,11 +46,12 @@
 			});
 			socket.on('playurl', function (url) {
 			
-				player.initialize(document.querySelector("#videoPlayer"), url, true);
+				player.initialize(document.querySelector("#videoPlayer"), url, false);
+//				player.initialize(document.querySelector("#videoPlayer"), 'https://deskjet.ccl.c3voc.de/dash/s1/manifest.mpd', false);
 //				player.setMute(false);
 //				player.setVolume(100);
-//				player.setAutoSwitchQualityFor('video', false);
-//				player.setMaxAllowedBitrateFor('video', 800000);
+				player.setAutoSwitchQualityFor('video', false);
+				player.setMaxAllowedBitrateFor('video', 800000);
 			/*	player.updateSettings({
 					streaming: {
 						abr: {
@@ -64,7 +66,7 @@
 				//var analyser = ctx.createAnalyser();
 				//audioSrc.connect(analyser);
 
-				var context = new AudioContext();
+			/*	var context = new AudioContext();
 				var source = context.createMediaElementSource(document.getElementById('videoPlayer'));
 				var analyser = context.createAnalyser();
 				analyser.fftSize = 32;
@@ -72,8 +74,15 @@
 				source.connect(analyser);
 				analyser.connect(context.destination);
 			
-				var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-
+				var frequencyData = new Uint8Array(analyser.frequencyBinCount);*/
+	/*			player.updateSettings({
+					streaming: {
+						lowLatencyEnabled: true,
+						abr: {
+							maxBitrate: { audio: 100, video: 1000 }
+						}
+					}
+				});*/
 				//player.on(dashjs.MediaPlayer.events['PLAYBACK_PLAYING'],function(){
 				player.on(dashjs.MediaPlayer.events['CAN_PLAY'],function(){
 						var list = player.getBitrateInfoListFor('video');
@@ -81,8 +90,10 @@
 							$('#videoPlayer').css({'transform' : 'rotate(90deg)  translateX(-140px)'})
 						else
 							$('#videoPlayer').css({'transform' : 'rotate(0deg)  translateY(-140px)'})
+						player.play();
+						setInterval(checkPlayer, 500);	
 				});
-				var eventsent = false;
+			/*	var eventsent = false;
 				player.on(dashjs.MediaPlayer.events['PLAYBACK_PLAYING'],function(){
 					
 					if(! eventsent)
@@ -90,24 +101,24 @@
 						
 
 					eventsent = true;
-				});
+				});*/
 
 				function checkPlayer(){
 					if(! player.isPaused())
 					{
 					
-						var vol = 0;
+					/*	var vol = 0;
 						for (let i of frequencyData)
 						{
 							vol+=i;
-						};
-						var vol2 = vol * player.getVolume();	
+						};*/
+						var vol2 = 100*player.getVolume();	
 				
 						var list = player.getBitrateInfoListFor('video');
-						socket.emit('player_stat',$.urlParam('id'),vol2,vol,player.getBufferLength('video'),player.timeAsUTC(),list[player.getQualityFor('video')].bitrate,player.getVolume());
+						socket.emit('player_stat',$.urlParam('id'),vol2,0,player.getBufferLength('video'),player.timeAsUTC(),list[player.getQualityFor('video')].bitrate,player.getVolume());
 					}
 				}
-				
+				/*
 				function checkPlayer2(){
 
 					if(! player.isPaused())
@@ -118,8 +129,7 @@
 
 				}
 
-				setInterval(checkPlayer2, 10);	
-				setInterval(checkPlayer, 500);	
+				setInterval(checkPlayer2, 10);	*/
 			});
 
 

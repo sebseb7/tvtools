@@ -379,7 +379,7 @@
 			$('#ticker1').removeClass('ticker-in');
 			$('#ticker1').addClass('ticker-out');
 		};
-		
+		var osources = [];	
 		socket.on('sources', function(sources,slots){
 			$('#drop1').empty();
 			$('#drop2').empty();
@@ -421,6 +421,7 @@
 				//alert(source.name);
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[0][0]){
+						osources[0]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop1'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop1'));
@@ -428,6 +429,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[1][0]){
+						osources[1]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop2'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop2'));
@@ -435,6 +437,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[2][0]){
+						osources[2]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop3'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop3'));
@@ -442,6 +445,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[3][0]){
+						osources[3]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop4'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop4'));
@@ -449,6 +453,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[4][0]){
+						osources[4]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop5'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop5'));
@@ -456,6 +461,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[5][0]){
+						osources[5]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop6'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop6'));
@@ -463,6 +469,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[6][0]){
+						osources[6]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop7'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop7'));
@@ -470,6 +477,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[7][0]){
+						osources[7]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop8'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop8'));
@@ -477,6 +485,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[8][0]){
+						osources[8]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop9'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop9'));
@@ -484,6 +493,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[9][0]){
+						osources[9]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop10'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop10'));
@@ -491,6 +501,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[10][0]){
+						osources[10]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop11'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop11'));
@@ -498,6 +509,7 @@
 				}
 				if(source.name.substring(0, 1) !== '_'){
 					if(source.name == slots[11][0]){
+						osources[11]=source.name;
 						$("<option />", {selected:"selected",val: source.name,text: source.name}).appendTo($('#drop12'));
 					}else{
 						$("<option />", {val: source.name,text: source.name}).appendTo($('#drop12'));
@@ -617,6 +629,19 @@
 				}
 			}
 		});
+		socket.on('rtmp1on', function(rtmp1on){
+			$('#rtmp1on').css('background-color', (rtmp1on)?'red':'blue');
+		});
+		socket.on('rtmp2on', function(rtmp2on){
+			$('#rtmp2on').css('background-color', (rtmp2on)?'red':'blue');
+		});
+		socket.on('rtmp3on', function(rtmp3on){
+			$('#rtmp3on').css('background-color', (rtmp3on)?'red':'blue');
+		});
+		socket.on('rtmp4on', function(rtmp4on){
+			$('#rtmp4on').css('background-color', (rtmp4on)?'red':'blue');
+		});
+
 		socket.on('ctrl', function(item,value){
 			
 			if(item == 'clockpos'){
@@ -668,6 +693,18 @@
 			else if(item == 'ticker4text'){
 				ticker4_text(value);
 				$("#ticker_4").val(value);
+			}
+			else if(item == 'rtmp1'){
+				$("#rtmp1").val(value);
+			}
+			else if(item == 'rtmp2'){
+				$("#rtmp2").val(value);
+			}
+			else if(item == 'rtmp3'){
+				$("#rtmp3").val(value);
+			}
+			else if(item == 'rtmp4'){
+				$("#rtmp4").val(value);
 			}
 
 		});
@@ -764,33 +801,8 @@
 		<div id="zoom_10" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">10</div>
 		<div id="zoom_11" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">11</div>
 		<div id="zoom_12" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">12</div>
-		<div style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">
-		<input type="text" id="rot_1" style="width:30px" value="0"></input>	
-		<select name="drop1" id="drop1"></select>
-		<input type="text" id="rot_2" style="width:30px" value="0"></input>	
-		<select name="drop2" id="drop2"></select>
-		<input type="text" id="rot_3" style="width:30px" value="0"></input>	
-		<select name="drop3" id="drop3"></select>
-		<input type="text" id="rot_4" style="width:30px" value="0"></input>	
-		<select name="drop4" id="drop4"></select>
-		<input type="text" id="rot_5" style="width:30px" value="0"></input>	
-		<select name="drop5" id="drop5"></select>
-		<input type="text" id="rot_6" style="width:30px" value="0"></input>	
-		<select name="drop6" id="drop6"></select>
-		<input type="text" id="rot_7" style="width:30px" value="0"></input>	
-		<select name="drop7" id="drop7"></select>
-		<input type="text" id="rot_8" style="width:30px" value="0"></input>	
-		<select name="drop8" id="drop8"></select>
-		<input type="text" id="rot_9" style="width:30px" value="0"></input>	
-		<select name="drop9" id="drop9"></select>
-		<input type="text" id="rot_10" style="width:30px" value="0"></input>	
-		<select name="drop10" id="drop10"></select>
-		<input type="text" id="rot_11" style="width:30px" value="0"></input>	
-		<select name="drop11" id="drop11"></select>
-		<input type="text" id="rot_12" style="width:30px" value="0"></input>	
-		<select name="drop12" id="drop12"></select>
-		
-		</div>
+	</div>
+	<div style="clear:both;">
 			<div id="slot_1" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M1</div>
 			<div id="slot_2" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M2</div>
 			<div id="slot_3" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M3</div>
@@ -804,6 +816,36 @@
 			<div id="slot_11" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M11</div>
 			<div id="slot_12" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">M12</div>
 	</div>
+	<div style="clear:both;">
+		
+		<input type="text" id="rot_1" style="width:30px" value="0"></input>	
+		<select name="drop1" id="drop1" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_2" style="width:30px" value="0"></input>	
+		<select name="drop2" id="drop2" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_3" style="width:30px" value="0"></input>	
+		<select name="drop3" id="drop3" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_4" style="width:30px" value="0"></input>	
+		<select name="drop4" id="drop4" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_5" style="width:30px" value="0"></input>	
+		<select name="drop5" id="drop5" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_6" style="width:30px" value="0"></input>	
+		<select name="drop6" id="drop6" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_7" style="width:30px" value="0"></input>	
+		<select name="drop7" id="drop7" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_8" style="width:30px" value="0"></input>	
+		<select name="drop8" id="drop8" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_9" style="width:30px" value="0"></input>	
+		<select name="drop9" id="drop9" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_10" style="width:30px" value="0"></input>	
+		<select name="drop10" id="drop10" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_11" style="width:30px" value="0"></input>	
+		<select name="drop11" id="drop11" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+		<input type="text" id="rot_12" style="width:30px" value="0"></input>	
+		<select name="drop12" id="drop12" style="margin:5px;padding:10px;background-color: blue;color:white;"></select>
+	</div>
+	<div style="clear:both;">
+		
+	</div>
 			
 	<div style="clear:both;">
 		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="ticker_1"></input></div>
@@ -812,6 +854,17 @@
 		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="ticker_4"></input></div>
 		<div id="ticker_in" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Ticker IN</div>
 		<div id="ticker_out" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">Ticker Out</div>
+	</div>
+
+	<div style="clear:both;">
+		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="rtmp1" style="width:300px"></input></div>
+		<div id="rtmp1on" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">ON</div>
+		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="rtmp2" style="width:300px"></input></div>
+		<div id="rtmp2on" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">ON</div>
+		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="rtmp3" style="width:300px"></input></div>
+		<div id="rtmp3on" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">ON</div>
+		<div style="float:left;margin:10px;padding:5px;"><input type="text" id="rtmp4" style="width:300px"></input></div>
+		<div id="rtmp4on" style="float:left;margin:5px;padding:10px;background-color: blue;color:white;">ON</div>
 	</div>
 	
 	<div style="clear:both;">
@@ -1148,39 +1201,147 @@
 
 
 		$('#drop1').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==0)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[0],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[0]);
+				}
+			}
+			osources[0]=this.value;
 			socket.emit('slot_set',1,this.value,$('#rot_1').val());
 		});
 		$('#drop2').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==1)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[1],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[1]);
+				}
+			}
+			osources[1]=this.value;
 			socket.emit('slot_set',2,this.value,$('#rot_2').val());
 		});
 		$('#drop3').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==2)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[2],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[2]);
+				}
+			}
+			osources[2]=this.value;
 			socket.emit('slot_set',3,this.value,$('#rot_3').val());
 		});
 		$('#drop4').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==3)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[3],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[3]);
+				}
+			}
+			osources[3]=this.value;
 			socket.emit('slot_set',4,this.value,$('#rot_4').val());
 		});
 		$('#drop5').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==4)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[4],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[4]);
+				}
+			}
+			osources[4]=this.value;
 			socket.emit('slot_set',5,this.value,$('#rot_5').val());
 		});
 		$('#drop6').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==5)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[5],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[5]);
+				}
+			}
+			osources[5]=this.value;
 			socket.emit('slot_set',6,this.value,$('#rot_6').val());
 		});
 		$('#drop7').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==6)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[6],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[6]);
+				}
+			}
+			osources[6]=this.value;
 			socket.emit('slot_set',7,this.value,$('#rot_7').val());
 		});
 		$('#drop8').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==7)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[7],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[7]);
+				}
+			}
+			osources[7]=this.value;
 			socket.emit('slot_set',8,this.value,$('#rot_8').val());
 		});
 		$('#drop9').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==8)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[8],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[8]);
+				}
+			}
+			osources[8]=this.value;
 			socket.emit('slot_set',9,this.value,$('#rot_9').val());
 		});
 		$('#drop10').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==9)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[9],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[9]);
+				}
+			}
+			osources[9]=this.value;
 			socket.emit('slot_set',10,this.value,$('#rot_10').val());
 		});
 		$('#drop11').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==10)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,$osources[10],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[10]);
+				}
+			}
+			osources[10]=this.value;
 			socket.emit('slot_set',11,this.value,$('#rot_11').val());
 		});
 		$('#drop12').change(function(){
+			for(var i = 0;i < 11;i++)
+			{
+				if(i==11)continue;
+				if($('#drop'+(i+1)).val() === this.value){
+					socket.emit('slot_set',i+1,osources[11],$('#rot_1').val());
+					$('#drop'+(i+1)).val(osources[11]);
+				}
+			}
+			osources[11]=this.value;
 			socket.emit('slot_set',12,this.value,$('#rot_12').val());
 		});
 		$('#zoom_1').click(function(){
@@ -1300,6 +1461,30 @@
 			socket.emit('ctrl','ticker4text',this.value);
 			ticker4_text(this.value);
 		});	
+		$("#rtmp1").on('change keyup', function () {
+			socket.emit('ctrl','rtmp1',this.value);
+		});	
+		$("#rtmp2").on('change keyup', function () {
+			socket.emit('ctrl','rtmp2',this.value);
+		});	
+		$("#rtmp3").on('change keyup', function () {
+			socket.emit('ctrl','rtmp3',this.value);
+		});	
+		$("#rtmp4").on('change keyup', function () {
+			socket.emit('ctrl','rtmp4',this.value);
+		});	
+		$('#rtmp1on').click(function(){
+			socket.emit('rtmp1toggle');
+		});
+		$('#rtmp2on').click(function(){
+			socket.emit('rtmp2toggle');
+		});
+		$('#rtmp3on').click(function(){
+			socket.emit('rtmp3toggle');
+		});
+		$('#rtmp4on').click(function(){
+			socket.emit('rtmp4toggle');
+		});
 		document.getElementById("pic1").src = image.src;
 		document.getElementById("pic2").src = image.src;
 		document.getElementById("pic3").src = image.src;
