@@ -18,8 +18,6 @@
 			}
 			
 			.container {
-				height: auto;
-				overflow: hidden;
 			}
 
 			.right {
@@ -34,12 +32,10 @@
 
 			.left {
 				float: none; 
-				width: auto;
-				overflow: hidden;
 			}
 
 			.video {
-				width: 100%;
+				border:10px solid #333333;max-width: calc((100vh - 20px)/9*16);
 			}
 			
 			.video-js.vjs-default-skin .vjs-big-play-button { display: none; }
@@ -51,11 +47,11 @@
 		<div class="container">
 			<div class="left">
 		
-				<div style="border:10px solid #333333"><div id="space_a" class="video">
+				<div id="space_a" class="video">
 
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<video id="video" style="width:100%" controls></video>
+<video id="video" style="width:100%;max-width: 100vw;max-height: calc(100vh - 20px);" controls></video>
 <script>
   var video = document.getElementById('video');
   if(Hls.isSupported()) {
@@ -100,7 +96,6 @@
 				</div></div>
 
 			</div>
-		</div>
 	</body>
 </html>
 
